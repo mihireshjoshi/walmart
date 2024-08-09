@@ -37,17 +37,9 @@ To get started with **Smart Retail Assistant**, follow these simple steps:
 2. Install dependencies: `npm install`
 3. Start the development server: `npm start`
 
-For more detailed setup instructions, refer to the [installation guide](#).
 
 ## 🤝 Contributing
 
 We welcome contributions! If you're interested in improving **Smart Retail Assistant**, please read contact us at ogs.dy.2k24@gmail.com
 
 
-## 🌟 Acknowledgements
-
-We would like to thank all contributors and users who have supported this project. Your feedback and suggestions are invaluable in making **Smart Retail Assistant** the best it can be.
-
----
-
-This version includes the correct URL for your GitHub repository. Feel free to add or modify any other sections as needed!

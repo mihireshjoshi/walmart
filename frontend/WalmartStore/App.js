@@ -1,22 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { TestPage } from './pages/TestPage';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import BarcodeScanner from './components/BarcodeScanner';
+import ProductDetails from './components/ProductDetails';
+import Cart from './components/Cart'; // Import the Cart screen
+import { CartProvider } from './context/CartContext'; // Import the CartProvider
 
-export default function App() {
+const Stack = createStackNavigator();
+
+function App() {
   return (
-    <View style={styles.container}>
-      <Text>Following is text from page</Text>
-      <TestPage/>
-      <StatusBar style="auto" />
-    </View>
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Scanner">
+          <Stack.Screen name="Scanner" component={BarcodeScanner} />
+          <Stack.Screen name="ProductDetails" component={ProductDetails} />
+          <Stack.Screen name="Cart" component={Cart} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CartProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;

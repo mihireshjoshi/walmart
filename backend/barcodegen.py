@@ -32,6 +32,6 @@ def store_product_in_supabase(product_id: str, name: str, description: str, pric
     return response
 
 # Example usage
-product_id = "123456789013"
+product_id = "123456789010"
 barcode_image_path = generate_barcode(product_id)
-store_product_in_supabase(product_id, "Gokul Milk 1 ltr", "This milk is from Ahmedabad", 70, barcode_image_path)
+store_product_in_supabase(product_id, "Amul Butter", "Pure Butter made in Ahmedabad", 50, barcode_image_path)

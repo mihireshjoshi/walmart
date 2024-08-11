@@ -13,7 +13,7 @@ function App() {
   return (
     <CartProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="MapMotion">
+        <Stack.Navigator initialRouteName="Scanner">
           <Stack.Screen name="Scanner" component={BarcodeScanner} />
           <Stack.Screen name="ProductDetails" component={ProductDetails} />
           <Stack.Screen name="Cart" component={Cart} />

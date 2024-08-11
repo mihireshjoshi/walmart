@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios';
-import { API_URL } from '@env';
+//import { API_URL } from '@env';
 import { useFocusEffect } from '@react-navigation/native';
+
+//console.log(API_URL);
 
 const BarcodeScanner = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
@@ -30,13 +32,14 @@ const BarcodeScanner = ({ navigation }) => {
         if (!scanned) { // Check if already scanned
             setScanned(true); // Mark as scanned
             setLoading(true);
-            const requestUrl = `${API_URL}/product/${data}`;
-            console.log('Request URL:', requestUrl); // Log the URL
-            console.log('Barcode Data:', data);      // Log the barcode data
+            const requestUrl = `http://192.168.10.8:8000/product/${data}`;
+            //console.log('Request URL:', requestUrl); // Log the URL
+            //console.log('Barcode Data:', data);      // Log the barcode data
 
             axios.get(requestUrl)
                 .then(response => {
                     const product = response.data;
+                    console.log(response.data);
                     navigation.navigate("ProductDetails", { product }); // Directly navigate to ProductDetails
                 })
                 .catch(error => {

@@ -9,7 +9,7 @@ const ProductNavigation = () => {
     const navigation = useNavigation();
 
     const handleNavigate = () => {
-        if (source && destination) {
+        if ((source && destination) && (source != destination)) {
             Alert.alert('Navigation', `Navigating from ${source} to ${destination}`);
         } else {
             Alert.alert('Error', 'Please select both source and destination');
@@ -18,7 +18,21 @@ const ProductNavigation = () => {
 
     const handleQRCodeScan = () => {
         navigation.navigate('QRCodeScanner', {
-            onScan: (scannedData) => setSource(scannedData),
+            onScan: (scannedData) => {
+                // If the scanned data matches one of the picker options, update the source
+                if (
+                    scannedData.toLowerCase() === 'entrance' ||
+                    scannedData.toLowerCase() === 'utensils' ||
+                    scannedData.toLowerCase() === 'vegetables' ||
+                    scannedData.toLowerCase() === 'cooking' ||
+                    scannedData.toLowerCase() === 'checkout' ||
+                    scannedData.toLowerCase() === 'exit'
+                ) {
+                    setSource(scannedData.toLowerCase());
+                } else {
+                    Alert.alert('Error', 'Invalid QR Code data');
+                }
+            },
         });
     };
 
@@ -41,8 +55,11 @@ const ProductNavigation = () => {
                 >
                     <Picker.Item label="Select Source" value="" />
                     <Picker.Item label="Entrance" value="entrance" />
-                    <Picker.Item label="Aisle 1" value="aisle1" />
-                    <Picker.Item label="Aisle 2" value="aisle2" />
+                    <Picker.Item label="Utensils" value="utensils" />
+                    <Picker.Item label="Vegetables" value="vegetables" />
+                    <Picker.Item label="Cooking" value="cooking" />
+                    <Picker.Item label="Checkout" value="checkout" />
+                    <Picker.Item label="Exit" value="exit" />
                 </Picker>
             </View>
 
@@ -54,9 +71,11 @@ const ProductNavigation = () => {
                     onValueChange={(itemValue) => setDestination(itemValue)}
                 >
                     <Picker.Item label="Select Destination" value="" />
+                    <Picker.Item label="Entrance" value="entrance" />
+                    <Picker.Item label="Utensils" value="utensils" />
+                    <Picker.Item label="Vegetables" value="vegetables" />
+                    <Picker.Item label="Cooking" value="cooking" />
                     <Picker.Item label="Exit" value="exit" />
-                    <Picker.Item label="Checkout" value="checkout" />
-                    <Picker.Item label="Aisle 3" value="aisle3" />
                 </Picker>
             </View>
 

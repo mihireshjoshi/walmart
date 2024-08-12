@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, Button, FlatList, Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { CartContext } from '../context/CartContext';
-import axios from 'axios';
 
 const ProductDetails = ({ route, navigation }) => {
     const { product } = route.params;
@@ -62,19 +61,13 @@ const ProductDetails = ({ route, navigation }) => {
                         <Text style={styles.recommendationsTitle}>Recommended Products</Text>
                         <FlatList
                             data={product.recommendations}
-                            keyExtractor={(item) => item.recommended_product_id.toString()}
+                            keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item }) => (
-                                <Text
-                                    style={styles.recommendedProduct}
-                                    onPress={() => {
-                                        // Navigate to ProductDetails for the recommended product
-                                        axios.get(`http://192.168.44.140:8000/product/${item.recommended_product_id}`).then((response) => {
-                                            navigation.navigate("ProductDetails", { product: response.data });
-                                        });
-                                    }}
-                                >
-                                    {item.recommended_prod_name}
-                                </Text>
+                                <View style={styles.recommendedProductContainer}>
+                                    <Text style={styles.recommendedProductName}>{item.Name}</Text>
+                                    <Text style={styles.recommendedProductPrice}>Price: ${item.Price}</Text>
+                                    <Text style={styles.recommendedProductDescription}>{item.Description}</Text>
+                                </View>
                             )}
                         />
                     </View>
@@ -150,10 +143,21 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    recommendedProduct: {
+    recommendedProductContainer: {
+        marginTop: 10,
+    },
+    recommendedProductName: {
         fontSize: 16,
         color: 'blue',
-        marginTop: 10,
+        fontWeight: 'bold',
+    },
+    recommendedProductPrice: {
+        fontSize: 14,
+        color: 'green',
+    },
+    recommendedProductDescription: {
+        fontSize: 14,
+        color: '#555',
     },
     bottomNavBar: {
         flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 
 const GridPathFinder = () => {
@@ -15,6 +15,11 @@ const GridPathFinder = () => {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5],
   ];
+
+  // Calculate cell size dynamically based on the screen width and grid dimensions
+  const screenWidth = Dimensions.get('window').width;
+  const maxGridWidth = screenWidth - 60; // Consider some padding
+  const cellSize = maxGridWidth / grid[0].length;
 
   // Create the pathway grid
   const pathwayGrid = grid.map(row => row.map(cell => (cell === 0 || cell === 6 ? 0 : 1)));
@@ -46,6 +51,7 @@ const GridPathFinder = () => {
 
       if (position.row === end.row && position.col === end.col) {
         setPath(path);
+        console.log("Path found:", path);
         return;
       }
 
@@ -64,6 +70,7 @@ const GridPathFinder = () => {
     }
 
     setPath([]); // If no path is found
+    console.log("No path found");
   };
 
   const isValidMove = (row, col) => {
@@ -85,6 +92,7 @@ const GridPathFinder = () => {
               key={colIndex}
               style={[
                 styles.cell,
+                { width: cellSize, height: cellSize },
                 isStart ? styles.startCell : null,
                 isEnd ? styles.endCell : null,
                 cell === 1 ? styles.blockedCell : null,
@@ -105,13 +113,13 @@ const GridPathFinder = () => {
     if (path.length === 0) return null;
 
     return (
-      <Svg height="100%" width="100%" style={styles.pathSvg}>
+      <Svg height={cellSize * grid.length} width={cellSize * grid[0].length} style={styles.pathSvg}>
         {path.map((point, index) => {
           if (index === path.length - 1) return null;
-          const startX = point.col * 42 + 21; // Adjust for cell size and centering
-          const startY = point.row * 42 + 21;
-          const endX = path[index + 1].col * 42 + 21;
-          const endY = path[index + 1].row * 42 + 21;
+          const startX = point.col * cellSize + cellSize / 2; // Center the line within the cell
+          const startY = point.row * cellSize + cellSize / 2;
+          const endX = path[index + 1].col * cellSize + cellSize / 2;
+          const endY = path[index + 1].row * cellSize + cellSize / 2;
 
           return (
             <Line
@@ -132,7 +140,7 @@ const GridPathFinder = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.gridContainer}>
+      <View style={[styles.gridContainer, { width: cellSize * grid[0].length, height: cellSize * grid.length }]}>
         {renderGrid()}
         {renderPathLine()}
       </View>
@@ -166,8 +174,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   cell: {
-    width: 40,
-    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,

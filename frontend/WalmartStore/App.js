@@ -9,6 +9,7 @@ import ProfilePage from './components/ProfilePage';
 import ProductNavigation from './components/ProductNavigation';
 import { CartProvider } from './context/CartContext';
 import QRCodeScanner from './components/QRCodeScanner';
+import GridPathFinder from './pages/GridMap';
 
 const Stack = createStackNavigator();
 
@@ -16,7 +17,7 @@ function App() {
   return (
     <CartProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="LandingPage">
+        <Stack.Navigator initialRouteName="GridMap">
           <Stack.Screen name="LandingPage" component={LandingPage} />
           <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
           <Stack.Screen name="ProductDetails" component={ProductDetails} />
@@ -24,6 +25,7 @@ function App() {
           <Stack.Screen name="Profile" component={ProfilePage} />
           <Stack.Screen name="QRCodeScanner" component={QRCodeScanner} />
           <Stack.Screen name="ProductNavigation" component={ProductNavigation} />
+          <Stack.Screen name="GridMap" component={GridPathFinder} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

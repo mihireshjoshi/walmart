@@ -1,225 +1,236 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
-import { Accelerometer } from 'expo-sensors';
-import Svg, { Line, Circle } from 'react-native-svg';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, Text, StyleSheet, Dimensions, View, ActivityIndicator } from 'react-native';
+import Svg, { Line, Rect, Circle, Text as SvgText } from 'react-native-svg';
+import { Camera } from 'expo-camera'; // Correct import statement
+import { Accelerometer, Gyroscope } from 'expo-sensors';
 
-const MAP_SIZE = 7; // Define the size of the map
-const SECTIONS = {
-  entry: { x: 3, y: 6 },
-  food: { x: 0, y: 1 },
-  clothing: { x: 3, y: 1 },
-  home: { x: 6, y: 1 },
+const { width } = Dimensions.get('window');
+const GRID_SIZE = 10;
+const CELL_SIZE = width / GRID_SIZE;
+
+const sections = {
+  Entry: { x: 9, y: 3, color: 'purple', label: 'Entry' },
+  Food: { x: 1, y: 0, color: 'red', label: 'Food' },
+  Clothing: { x: 1, y: 4, color: 'blue', label: 'Clothing' },
+  'Home appl.': { x: 1, y: 8, color: 'green', label: 'Home appl.' }
 };
 
-const STEPS_PER_CELL = 2; // Number of steps required to move from one grid cell to another
-
 const StoreNavigator = () => {
-  const [stepCounter, setStepCounter] = useState(0);
-  const [direction, setDirection] = useState('up'); // Default direction is 'up'
-  const [position, setPosition] = useState(SECTIONS.entry);
-  const [path, setPath] = useState([SECTIONS.entry]);
-  const [target, setTarget] = useState(SECTIONS.food);
-  const [instructions, setInstructions] = useState('Move Forward for Food');
+  const [hasPermission, setHasPermission] = useState(null);
+  const [userPosition, setUserPosition] = useState({ x: 9, y: 3 });
+  const [userDirection, setUserDirection] = useState({ x: 0, y: -1 });
+  const [path, setPath] = useState([]);
+  const [instruction, setInstruction] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [accelSubscription, setAccelSubscription] = useState(null);
+  const [gyroSubscription, setGyroSubscription] = useState(null);
 
   useEffect(() => {
-    const accelerometerSubscription = Accelerometer.addListener((data) => {
-      handleAccelerometerData(data);
-    });
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+      setLoading(false);
+    })();
 
-    return () => {
-      accelerometerSubscription.remove();
-    };
-  }, [stepCounter, direction]);
+    _subscribeSensors();
+    return () => _unsubscribeSensors();
+  }, []);
 
-  const handleAccelerometerData = (data) => {
-    // Only consider horizontal movement by ignoring z-axis
-    const horizontalMagnitude = Math.sqrt(data.x * data.x + data.y * data.y);
+  const _subscribeSensors = () => {
+    setAccelSubscription(
+      Accelerometer.addListener(data => {
+        handleMovement(data);
+      })
+    );
 
-    if (horizontalMagnitude > 1.2 && horizontalMagnitude < 2.5) {  // Adjust these thresholds based on testing
-      setStepCounter((prevSteps) => prevSteps + 1);
+    setGyroSubscription(
+      Gyroscope.addListener(data => {
+        handleRotation(data);
+      })
+    );
+  };
 
-      if (stepCounter + 1 >= STEPS_PER_CELL) {
-        updatePosition();
-        setStepCounter(0); // Reset step counter after moving to a new cell
-      }
+  const _unsubscribeSensors = () => {
+    accelSubscription && accelSubscription.remove();
+    gyroSubscription && gyroSubscription.remove();
+    setAccelSubscription(null);
+    setGyroSubscription(null);
+  };
+
+  const handleMovement = (data) => {
+    const { y } = data;
+    let newPosition = { ...userPosition };
+
+    if (y < -0.1) {
+      newPosition.x += userDirection.x;
+      newPosition.y += userDirection.y;
+      setInstruction('Moving Forward');
+    } else if (y > 0.1) {
+      newPosition.x -= userDirection.x;
+      newPosition.y -= userDirection.y;
+      setInstruction('Moving Backward');
+    }
+
+    if (newPosition.x !== userPosition.x || newPosition.y !== userPosition.y) {
+      setUserPosition(newPosition);
+      const target = sections.Food;
+      const newPath = generatePath(newPosition, target);
+      setPath(newPath);
     }
   };
 
-  const handleTurnLeft = () => {
-    setDirection((prevDirection) => {
-      switch (prevDirection) {
-        case 'up': return 'left';
-        case 'left': return 'down';
-        case 'down': return 'right';
-        case 'right': return 'up';
-        default: return 'up';
-      }
-    });
-  };
+  const handleRotation = (data) => {
+    const { z } = data;
+    let newDirection = { ...userDirection };
 
-  const handleTurnRight = () => {
-    setDirection((prevDirection) => {
-      switch (prevDirection) {
-        case 'up': return 'right';
-        case 'right': return 'down';
-        case 'down': return 'left';
-        case 'left': return 'up';
-        default: return 'up';
-      }
-    });
-  };
+    if (z > 0.1) {
+      newDirection = { x: -userDirection.y, y: userDirection.x };
+      setInstruction('Turning Right');
+    } else if (z < -0.1) {
+      newDirection = { x: userDirection.y, y: -userDirection.x };
+      setInstruction('Turning Left');
+    }
 
-  const updatePosition = () => {
-    setPosition((prevPosition) => {
-      let newPosition = { ...prevPosition };
-      switch (direction) {
-        case 'up':
-          newPosition.y = Math.max(0, prevPosition.y - 1);
-          break;
-        case 'down':
-          newPosition.y = Math.min(MAP_SIZE - 1, prevPosition.y + 1);
-          break;
-        case 'left':
-          newPosition.x = Math.max(0, prevPosition.x - 1);
-          break;
-        case 'right':
-          newPosition.x = Math.min(MAP_SIZE - 1, prevPosition.x + 1);
-          break;
-        default:
-          break;
-      }
-      setPath((prevPath) => [...prevPath, newPosition]);
-
-      if (newPosition.x === target.x && newPosition.y === target.y) {
-        setInstructions('You have reached your destination');
-      } else {
-        updateInstructions(newPosition);
-      }
-
-      return newPosition;
-    });
-  };
-
-  const updateInstructions = (newPosition) => {
-    if (newPosition.x < target.x) {
-      setInstructions('Move Right for Food');
-    } else if (newPosition.x > target.x) {
-      setInstructions('Move Left for Food');
-    } else if (newPosition.y < target.y) {
-      setInstructions('Move Down for Food');
-    } else if (newPosition.y > target.y) {
-      setInstructions('Move Forward for Food');
+    if (newDirection.x !== userDirection.x || newDirection.y !== userDirection.y) {
+      setUserDirection(newDirection);
     }
   };
 
-  const getGridBackgroundColor = (x, y) => {
-    if (x === SECTIONS.food.x && y >= SECTIONS.food.y && y <= SECTIONS.food.y + 2) return '#FF6347';
-    if (x === SECTIONS.clothing.x && y >= SECTIONS.clothing.y && y <= SECTIONS.clothing.y + 2) return '#4682B4';
-    if (x === SECTIONS.home.x && y >= SECTIONS.home.y && y <= SECTIONS.home.y + 2) return '#32CD32';
-    return 'white';
+  const generatePath = (start, end) => {
+    const path = [];
+    let { x, y } = start;
+    while (x !== end.x) {
+      x += x < end.x ? 1 : -1;
+      path.push({ x, y });
+    }
+    while (y !== end.y) {
+      y += y < end.y ? 1 : -1;
+      path.push({ x, y });
+    }
+    return path;
   };
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Store Map</Text>
-      <View style={styles.map}>
-        {Array.from({ length: MAP_SIZE }).map((_, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {Array.from({ length: MAP_SIZE }).map((_, colIndex) => (
-              <View
-                key={colIndex}
-                style={[
-                  styles.cell,
-                  { backgroundColor: getGridBackgroundColor(colIndex, rowIndex) },
-                ]}
-              >
-                {colIndex === SECTIONS.entry.x && rowIndex === SECTIONS.entry.y && (
-                  <Text style={styles.label}>Entry</Text>
-                )}
-                {colIndex === SECTIONS.food.x && rowIndex === SECTIONS.food.y && (
-                  <Text style={styles.label}>Food</Text>
-                )}
-                {colIndex === SECTIONS.clothing.x && rowIndex === SECTIONS.clothing.y && (
-                  <Text style={styles.label}>Clothing</Text>
-                )}
-                {colIndex === SECTIONS.home.x && rowIndex === SECTIONS.home.y && (
-                  <Text style={styles.label}>Home appl.</Text>
-                )}
-              </View>
-            ))}
-          </View>
+    <SafeAreaView style={styles.container}>
+      <Camera style={styles.camera} type={Camera.Constants.Type.back} />
+
+      <Svg height={width} width={width} style={styles.overlay}>
+        {Array.from({ length: GRID_SIZE }).map((_, x) =>
+          Array.from({ length: GRID_SIZE }).map((_, y) => (
+            <Rect
+              key={`rect-${x}-${y}`}
+              x={y * CELL_SIZE}
+              y={x * CELL_SIZE}
+              width={CELL_SIZE}
+              height={CELL_SIZE}
+              fill="transparent"
+              stroke="gray"
+            />
+          ))
+        )}
+
+        {Object.values(sections).map((section, index) => (
+          <Rect
+            key={`section-${index}`}
+            x={section.y * CELL_SIZE}
+            y={section.x * CELL_SIZE}
+            width={CELL_SIZE}
+            height={CELL_SIZE}
+            fill={section.color}
+          />
         ))}
-        <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-          {path.map((pos, index) => {
-            if (index === 0) return null;
-            const prevPos = path[index - 1];
-            return (
-              <Line
-                key={index}
-                x1={prevPos.x * 50 + 25}
-                y1={prevPos.y * 50 + 25}
-                x2={pos.x * 50 + 25}
-                y2={pos.y * 50 + 25}
-                stroke="blue"
-                strokeWidth="3"
-              />
-            );
-          })}
-          <Circle cx={position.x * 50 + 25} cy={position.y * 50 + 25} r="10" fill="yellow" stroke="black" strokeWidth="2" />
-        </Svg>
+
+        {userPosition && (
+          <Circle
+            cx={userPosition.y * CELL_SIZE + CELL_SIZE / 2}
+            cy={userPosition.x * CELL_SIZE + CELL_SIZE / 2}
+            r={CELL_SIZE / 4}
+            fill="yellow"
+            stroke="black"
+            strokeWidth="2"
+          />
+        )}
+
+        {path.map((node, index) =>
+          index < path.length - 1 ? (
+            <Line
+              key={`line-${node.x}-${node.y}`}
+              x1={node.y * CELL_SIZE + CELL_SIZE / 2}
+              y1={node.x * CELL_SIZE + CELL_SIZE / 2}
+              x2={path[index + 1].y * CELL_SIZE + CELL_SIZE / 2}
+              y2={path[index + 1].x * CELL_SIZE + CELL_SIZE / 2}
+              stroke="blue"
+              strokeWidth="3"
+            />
+          ) : null
+        )}
+
+        {Object.values(sections).map((section, index) => (
+          <SvgText
+            key={`label-${index}`}
+            x={section.y * CELL_SIZE + CELL_SIZE / 2}
+            y={section.x * CELL_SIZE + CELL_SIZE / 2}
+            fill="white"
+            fontSize="12"
+            fontWeight="bold"
+            textAnchor="middle"
+            alignmentBaseline="central"
+          >
+            {section.label}
+          </SvgText>
+        ))}
+      </Svg>
+
+      <View style={styles.metricsContainer}>
+        <Text style={styles.metricTitle}>Sensor Data</Text>
+        <Text>Current Position: ({userPosition.x}, {userPosition.y})</Text>
+        <Text>Current Direction: ({userDirection.x}, {userDirection.y})</Text>
+        <Text>{instruction}</Text>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Turn Left" onPress={handleTurnLeft} />
-        <Button title="Turn Right" onPress={handleTurnRight} />
-      </View>
-      <Text style={styles.instructions}>{instructions}</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
+    backgroundColor: 'black',
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
+  camera: {
+    flex: 1,
+    zIndex: 1,
   },
-  map: {
-    width: 350,
-    height: 350,
-    position: 'relative',
-    borderColor: 'black',
-    borderWidth: 1,
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 2,
   },
-  row: {
-    flexDirection: 'row',
+  metricsContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 10,
+    padding: 10,
+    backgroundColor: '#000000aa',
+    borderRadius: 10,
+    zIndex: 3,
   },
-  cell: {
-    width: 50,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  label: {
-    color: 'white',
+  metricTitle: {
     fontWeight: 'bold',
-    fontSize: 10,
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginVertical: 20,
-  },
-  instructions: {
-    fontSize: 18,
-    marginVertical: 16,
-    textAlign: 'center',
+    marginBottom: 5,
+    color: 'white',
   },
 });
 

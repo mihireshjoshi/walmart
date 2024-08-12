@@ -32,7 +32,7 @@ const BarcodeScanner = ({ navigation }) => {
         if (!scanned) { // Check if already scanned
             setScanned(true); // Mark as scanned
             setLoading(true);
-            const requestUrl = `http://192.168.10.8:8000/product/${data}`;
+            const requestUrl = `http://192.168.44.140:8000/product/${data}`;
             //console.log('Request URL:', requestUrl); // Log the URL
             //console.log('Barcode Data:', data);      // Log the barcode data
 

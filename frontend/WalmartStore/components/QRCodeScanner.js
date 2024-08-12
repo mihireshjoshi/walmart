@@ -17,6 +17,7 @@ const QRCodeScanner = ({ route, navigation }) => {
     const handleQRCodeScanned = ({ data }) => {
         if (!scanned) {
             setScanned(true);
+            console.log(data);
             if (onScan) {
                 onScan(data); // Pass the scanned data back to the previous screen
             }

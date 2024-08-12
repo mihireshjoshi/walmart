@@ -19,19 +19,20 @@ def generate_barcode(product_id: str):
     return barcode_image_path
 
 # Store product details in Supabase
-def store_product_in_supabase(product_id: str, name: str, description: str, price: float, barcode_image_path: str):
+def store_product_in_supabase(product_id: str, name: str, description: str, price: float, barcode_image_path: str, section: str):
     product_data = {
         "prod_id": product_id,
         "name": name,
         "description": description,
         "price": price,
         "barcode": product_id,
-        "barcode_image": barcode_image_path  # Store path or upload to storage
+        "barcode_image": barcode_image_path,
+        "section": section # Store path or upload to storage
     }
     response = supabase.table('products').insert(product_data).execute()
     return response
 
 # Example usage
-product_id = "123456789010"
+product_id = "123456789008"
 barcode_image_path = generate_barcode(product_id)
-store_product_in_supabase(product_id, "Amul Butter", "Pure Butter made in Ahmedabad", 50, barcode_image_path)
+store_product_in_supabase(product_id, "U.S. Polo Tshirt", "Imported from Italy", 1799, barcode_image_path, "Clothes")

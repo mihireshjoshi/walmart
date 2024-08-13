@@ -1,31 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
+import Svg, { Line, Circle } from 'react-native-svg';
 
 const GridPathFinder = () => {
   const [path, setPath] = useState([]);
 
-  // The base map grid
-  const grid = [
+  // Original base map grid
+  const originalGrid = [
     [2, 2, 2, 0, 3, 3, 3, 0, 4, 4, 4],
     [2, 2, 2, 0, 3, 3, 3, 0, 4, 4, 4],
     [2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 4],
-    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 6],
+    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5],
   ];
 
+  // Scale factor
+  const scaleFactor = 10;
+
+  // Create the high-resolution grid by expanding each cell of the original grid
+  const grid = [];
+  for (let i = 0; i < originalGrid.length; i++) {
+    for (let r = 0; r < scaleFactor; r++) {
+      const newRow = [];
+      for (let j = 0; j < originalGrid[i].length; j++) {
+        for (let c = 0; c < scaleFactor; c++) {
+          newRow.push(originalGrid[i][j]);
+        }
+      }
+      grid.push(newRow);
+    }
+  }
+
   // Calculate cell size dynamically based on the screen width and grid dimensions
   const screenWidth = Dimensions.get('window').width;
-  const maxGridWidth = screenWidth - 60; // Consider some padding
+  const maxGridWidth = screenWidth; // Full width with no padding
   const cellSize = maxGridWidth / grid[0].length;
 
   // Create the pathway grid
   const pathwayGrid = grid.map(row => row.map(cell => (cell === 0 || cell === 6 ? 0 : 1)));
 
-  const start = { row: 6, col: 5 };
-  const end = { row: 3, col: 10 };
+  // Adjust the start and end positions to match the new grid
+  const start = { row: 6 * scaleFactor + 5, col: 5 * scaleFactor + 5};
+  const end = { row: 3 * scaleFactor + 5, col: 10 * scaleFactor + 5};
 
   // 8-directional movements including diagonals
   const directions = [
@@ -87,14 +105,15 @@ const GridPathFinder = () => {
         {row.map((cell, colIndex) => {
           const isStart = start.row === rowIndex && start.col === colIndex;
           const isEnd = end.row === rowIndex && end.col === colIndex;
+          const isPath = path.some(p => p.row === rowIndex && p.col === colIndex);
           return (
             <View
               key={colIndex}
               style={[
                 styles.cell,
                 { width: cellSize, height: cellSize },
-                isStart ? styles.startCell : null,
-                isEnd ? styles.endCell : null,
+                isStart || isEnd ? styles.highlightCell : null,
+                isPath ? styles.pathCell : null,
                 cell === 1 ? styles.blockedCell : null,
                 cell === 2 ? styles.foodSection : null,
                 cell === 3 ? styles.clothingSection : null,
@@ -116,10 +135,12 @@ const GridPathFinder = () => {
       <Svg height={cellSize * grid.length} width={cellSize * grid[0].length} style={styles.pathSvg}>
         {path.map((point, index) => {
           if (index === path.length - 1) return null;
-          const startX = point.col * cellSize + cellSize / 2; // Center the line within the cell
-          const startY = point.row * cellSize + cellSize / 2;
-          const endX = path[index + 1].col * cellSize + cellSize / 2;
-          const endY = path[index + 1].row * cellSize + cellSize / 2;
+
+          // Adjust the path coordinates to move through the center of each cell
+          const startX = (point.col + 0.5) * cellSize;
+          const startY = (point.row + 0.5) * cellSize;
+          const endX = (path[index + 1].col + 0.5) * cellSize;
+          const endY = (path[index + 1].row + 0.5) * cellSize;
 
           return (
             <Line
@@ -128,12 +149,14 @@ const GridPathFinder = () => {
               y1={startY}
               x2={endX}
               y2={endY}
-              stroke="#ffcc00"
-              strokeWidth="4"
+              stroke="#000"
+              strokeWidth="5"
               strokeLinecap="round"
             />
           );
         })}
+        <Circle cx={(start.col + 0.5) * cellSize} cy={(start.row + 0.5) * cellSize} r={cellSize / 3} fill="yellow" />
+        <Circle cx={(end.col + 0.5) * cellSize} cy={(end.row + 0.5) * cellSize} r={cellSize / 3} fill="yellow" />
       </Svg>
     );
   };
@@ -157,8 +180,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     shadowColor: "#000",
     shadowOffset: {
-      width: 0,
-      height: 10,
+      width: 0, height: 10,
     },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -176,54 +198,38 @@ const styles = StyleSheet.create({
   cell: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: '#e0e0e0',
+  },
+  highlightCell: {
     borderRadius: 10,
-    margin: 1,
+  },
+  pathCell: {
+    backgroundColor: 'yellow',
   },
   startCell: {
     backgroundColor: '#34c759',
-    borderRadius: 10,
-    borderColor: '#32a852',
-    shadowColor: '#34c759',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
   },
   endCell: {
     backgroundColor: '#ff3b30',
-    borderRadius: 10,
-    borderColor: '#cc3232',
-    shadowColor: '#ff3b30',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
   },
   blockedCell: {
     backgroundColor: '#d1d1d6',
-    borderRadius: 10,
   },
   foodSection: {
     backgroundColor: '#ff6f61',
-    borderRadius: 10,
   },
   clothingSection: {
     backgroundColor: '#007aff',
-    borderRadius: 10,
   },
   appliancesSection: {
     backgroundColor: '#5856d6',
-    borderRadius: 10,
   },
   entrySection: {
     backgroundColor: '#5ac8fa',
-    borderRadius: 10,
   },
   exitSection: {
     backgroundColor: '#ff9500',
-    borderRadius: 10,
   },
   info: {
     fontSize: 18,

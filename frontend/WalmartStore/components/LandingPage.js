@@ -10,7 +10,7 @@ import {
   TextInput,
   Button,
 } from "react-native";
-import  { useState , useEffect} from 'react';
+import { useState, useEffect } from 'react';
 
 import { createClient } from '@supabase/supabase-js';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
@@ -127,12 +127,12 @@ const LandingPage = () => {
   );
 
 
- 
+
 
   const navigation = useNavigation(); // Use navigation hook
 
-// Search Funtion
-const [productName, setProductName] = useState('');
+  // Search Funtion
+  const [productName, setProductName] = useState('');
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
 
@@ -178,109 +178,134 @@ const [productName, setProductName] = useState('');
 
   return (
     <View style={styles.container}>
-    {/* Top Navigation Bar */}
-    <View style={styles.topNavBar}>
-      <Text style={styles.pageTitle}>Hi Mohammed!</Text>
-      <View style={styles.iconContainer}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate("Cart")}
-        >
-          <Image
-            source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/1170/1170576.png",
-            }}
-            style={styles.iconImage}
+      {/* Top Navigation Bar */}
+      <View style={styles.topNavBar}>
+        <Text style={styles.pageTitle}>Hi Mohammed!</Text>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate("Cart")}
+          >
+            <Image
+              source={{
+                uri: "https://cdn-icons-png.flaticon.com/512/1170/1170576.png",
+              }}
+              style={styles.iconImage}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate("Profile")}
+          >
+            <Image
+              source={{
+                uri: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+              }}
+              style={styles.iconImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Search Section */}
+      <View style={style.searchSection}>
+        <View style={style.searchBarContainer}>
+          <TextInput
+            style={style.searchInput}
+            value={productName}
+            onChangeText={(text) => setProductName(text)}
+            placeholder="Enter product name"
           />
+          <TouchableOpacity
+            style={style.clearButton}
+            onPress={() => {
+              setProductName(''); // Clear the text input
+              Keyboard.dismiss(); // Close the keyboard
+            }}
+          >
+            <Text style={style.clearButtonText}>X</Text>
+          </TouchableOpacity>
+        </View>
+        {error && <Text style={style.searchError}>Error: {error}</Text>}
+        <FlatList
+          data={products}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={style.searchCard} onPress={() => handlePress(item)}>
+              <Text style={style.searchCardTitle}>{item.name}</Text>
+              <Text style={style.searchCardDescription}>{item.description}</Text>
+              <Text style={style.searchCardPrice}>{item.price}/- Rs</Text>
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={style.searchContentContainer}
+        />
+      </View>
+
+
+      {/* Main Features */}
+      <View style={styles.mainFeaturesContainer}>
+        <TouchableOpacity
+          style={styles.featureButton}
+          onPress={() => navigation.navigate("MapView")}
+        >
+          <Text style={styles.featureText}>Navigate Your Products</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate("Profile")}
+          style={styles.featureButton}
+          onPress={() => navigation.navigate("BarcodeScanner")}
         >
-          <Image
-            source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-            }}
-            style={styles.iconImage}
-          />
+          <Text style={styles.featureText}>Scan Your Products</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.createShoppingListContainer}>
+        <TouchableOpacity
+          style={styles.createShoppingListButton}
+          onPress={() => navigation.navigate("CreateShoppingList")}
+        >
+          <Text style={styles.createShoppingListText}>Create Your Shopping List</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Sections */}
+      <ScrollView style={styles.content}>
+        {sections.map((section) => (
+          <View key={section.id} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <FlatList
+              data={section.products}
+              keyExtractor={(item) => item.id}
+              renderItem={renderProductItem}
+              horizontal={true} // Horizontal scroll
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            />
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Bottom Navigation Bar */}
     </View>
-            
-    {/* Search Section */}
-    <View style={style.searchSection}>
-  <View style={style.searchBarContainer}>
-    <TextInput
-      style={style.searchInput}
-      value={productName}
-      onChangeText={(text) => setProductName(text)}
-      placeholder="Enter product name"
-    />
-    <TouchableOpacity
-      style={style.clearButton}
-      onPress={() => {
-        setProductName(''); // Clear the text input
-        Keyboard.dismiss(); // Close the keyboard
-      }}
-    >
-      <Text style={style.clearButtonText}>X</Text>
-    </TouchableOpacity>
-  </View>
-  {error && <Text style={style.searchError}>Error: {error}</Text>}
-  <FlatList
-    data={products}
-    keyExtractor={(item, index) => index.toString()}
-    renderItem={({ item }) => (
-      <TouchableOpacity style={style.searchCard} onPress={() => handlePress(item)}>
-        <Text style={style.searchCardTitle}>{item.name}</Text>
-        <Text style={style.searchCardDescription}>{item.description}</Text>
-        <Text style={style.searchCardPrice}>{item.price}/- Rs</Text>
-      </TouchableOpacity>
-    )}
-    contentContainerStyle={style.searchContentContainer}
-  />
-</View>
-
-
-    {/* Main Features */}
-    <View style={styles.mainFeaturesContainer}>
-      <TouchableOpacity
-        style={styles.featureButton}
-        onPress={() => navigation.navigate("MapView")}
-      >
-        <Text style={styles.featureText}>Navigate Your Products</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.featureButton}
-        onPress={() => navigation.navigate("BarcodeScanner")}
-      >
-        <Text style={styles.featureText}>Scan Your Products</Text>
-      </TouchableOpacity>
-    </View>
-
-    {/* Sections */}
-    <ScrollView style={styles.content}>
-      {sections.map((section) => (
-        <View key={section.id} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-          <FlatList
-            data={section.products}
-            keyExtractor={(item) => item.id}
-            renderItem={renderProductItem}
-            horizontal={true} // Horizontal scroll
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScroll}
-          />
-        </View>
-      ))}
-    </ScrollView>
-
-    {/* Bottom Navigation Bar */}
-  </View>
   );
 };
 
 const styles = StyleSheet.create({
+  createShoppingListContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  createShoppingListButton: {
+    backgroundColor: '#6200ea',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  createShoppingListText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
@@ -388,7 +413,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
   },
-  
+
 });
 
 

@@ -15,8 +15,9 @@ import QRScanner from './components/QRScanner';
 import Search from './components/Search';
 import BarcodeScanner from './components/BarcodeScanner';
 import { LogBox } from 'react-native';
+import CreateShoppingList from './components/CreateShoppingList';
 const Stack = createStackNavigator();
-LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews']); 
+LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews']);
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Stack.Screen name="Search" component={Search} />
             <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
             <Stack.Screen name="QueueStatus" component={QueueStatus} />
+            <Stack.Screen name="CreateShoppingList" component={CreateShoppingList} />
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>

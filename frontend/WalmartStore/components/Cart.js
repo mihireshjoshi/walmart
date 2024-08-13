@@ -15,7 +15,7 @@ const Cart = () => {
 
     const handleCounterCheckout = async () => {
         try {
-            const response = await axios.post('http://192.168.169.78:8000/allocate_queue');
+            const response = await axios.post('http://192.168.43.13:8000/allocate_queue');
             const queueData = response.data;
             setQueueInfo(queueData);
 

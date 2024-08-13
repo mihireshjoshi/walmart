@@ -144,15 +144,15 @@ threading.Thread(target=process_queues, daemon=True).start()
 async def get_product(barcode: str):
     try:
         # Fetch the product details from the database
-        response = supabase.table('products').select("*").eq('barcode', barcode).execute()
+        response = supabase.table('products').select("*").eq('prod_id', barcode).execute()
         if not response.data:
             raise HTTPException(status_code=404, detail="Product not found")
         
         product = response.data[0]
-
+        print(product)
         # Fetch sales information
-        sale_info = await check_sales(product['prod_id'])
-
+        #sale_info = await check_sales(product['prod_id'])
+        sale_info=None
         # Fetch recommendations using the Gemini model
         recommendations = await outputfn(product['price'], product['name'], product['description'])
 

@@ -21,21 +21,19 @@ const Stack = createStackNavigator();
 function App() {
   return (
     <Provider store={store}>
-    <CartProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="LandingPage">
-          <Stack.Screen name="LandingPage" component={LandingPage} />
-          <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
-          <Stack.Screen name="ProductDetails" component={ProductDetails} />
-          <Stack.Screen name="Cart" component={Cart} />
-          <Stack.Screen name="Profile" component={ProfilePage} />
-          <Stack.Screen name="MapView" component={MapView} />
-          <Stack.Screen name="QRScanner" component={QRScanner} />
-          <Stack.Screen name="ProductNavigation" component={ProductNavigation} />
-          <Stack.Screen name="GridMap" component={GridPathFinder} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </CartProvider>
+      <CartProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="LandingPage">
+            <Stack.Screen name="LandingPage" component={LandingPage} />
+            <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
+            <Stack.Screen name="ProductDetails" component={ProductDetails} />
+            <Stack.Screen name="Cart" component={Cart} />
+            <Stack.Screen name="Profile" component={ProfilePage} />
+            <Stack.Screen name="MapView" component={MapView} />
+            <Stack.Screen name="QRScanner" component={QRScanner} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </CartProvider>
     </Provider>
   );
 }

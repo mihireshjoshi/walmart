@@ -32,6 +32,9 @@ def store_product_in_supabase(product_id: str, name: str, description: str, pric
     return response
 
 # Example usage
-product_id = "123456789008"
-barcode_image_path = generate_barcode(product_id)
-store_product_in_supabase(product_id, "U.S. Polo Tshirt", "Imported from Italy", 1799, "Clothes", barcode_image_path)
+# product_id = "123456789005"
+# barcode_image_path = generate_barcode(product_id)
+# store_product_in_supabase(product_id, "Britannia White Bread", "400g", 35, "Food", barcode_image_path)
+#  8-13
+response = supabase.table("products").select("name").eq("name", "Kurkure Puffcorn").execute()
+print(response)

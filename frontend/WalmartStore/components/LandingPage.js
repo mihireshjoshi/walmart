@@ -168,7 +168,7 @@ const LandingPage = () => {
       <View style={styles.mainFeaturesContainer}>
         <TouchableOpacity
           style={styles.featureButton}
-          onPress={() => navigation.navigate("ProductNavigation")}
+          onPress={() => navigation.navigate("MapView")}
         >
           <Text style={styles.featureText}>Navigate Your Products</Text>
         </TouchableOpacity>

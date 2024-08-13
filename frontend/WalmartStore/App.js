@@ -3,7 +3,7 @@ import 'react-native-gesture-handler'; // Ensure this is at the top
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LandingPage from './components/LandingPage';
-import BarcodeScanner from './components/BarcodeScanner';
+// import BarcodeScanner from './components/BarcodeScanner';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
 import ProfilePage from './components/ProfilePage';
@@ -15,7 +15,7 @@ import { store } from './redux/store';
 import MapView from './components/MapView';
 import QRScanner from './components/QRScanner';
 import GridPathFinder from './pages/GridMap';
-
+import Search from './components/Search';
 const Stack = createStackNavigator();
 
 function App() {
@@ -25,12 +25,13 @@ function App() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="LandingPage">
             <Stack.Screen name="LandingPage" component={LandingPage} />
-            <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
+            {/* <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} /> */}
             <Stack.Screen name="ProductDetails" component={ProductDetails} />
             <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen name="Profile" component={ProfilePage} />
             <Stack.Screen name="MapView" component={MapView} />
             <Stack.Screen name="QRScanner" component={QRScanner} />
+            <Stack.Screen name="Search" component={Search} />
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>

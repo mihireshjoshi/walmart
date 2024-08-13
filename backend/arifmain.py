@@ -2,9 +2,11 @@ from fastapi import FastAPI, HTTPException
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import google.generativeai as genai
-from google.generativeai import GenerationConfig,GenerativeModel
+from google.generativeai import GenerationConfig, GenerativeModel
 import pandas as pd
-import os, re, json
+import os, re, json, time, threading
+from pydantic import BaseModel
+from typing import Dict, List
 
 load_dotenv()
 app = FastAPI()
@@ -16,6 +18,25 @@ supabase: Client = create_client(url, key)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-pro-latest")
+
+# Queue Configuration
+queues = {
+    "queue1": [],
+    "queue2": [],
+    "queue3": []
+}
+CHECKOUT_TIME = 2 * 60  # in seconds
+queue_lock = threading.Lock()
+
+class QueueStatus(BaseModel):
+    total_people: int
+    remaining_times: List[int]
+
+class QueueAllocationResponse(BaseModel):
+    queue_name: str
+    estimated_time: int  # in seconds
+    position: int
+    queue_status: Dict[str, QueueStatus]
 
 async def outputfn(price, name, description):
     try:
@@ -78,7 +99,6 @@ async def outputfn(price, name, description):
 
 # Function to get related products (simple mockup for demonstration)
 async def get_recommendations(product_id: str):
-    # Mockup: Logic to get recommended products (replace this with your actual logic)
     try:
         response = supabase.table('recommendations').select("*").eq('product_id', product_id).execute()
         if response.data:
@@ -94,7 +114,6 @@ async def get_recommendations(product_id: str):
 
 # Function to check if the product is on sale
 async def check_sales(product_id: str):
-    # Mockup: Logic to get sale information (replace this with your actual logic)
     try:
         response = supabase.table('sales').select("*").eq('product_id', product_id).execute()
         sale_info = response.data[0] if response.data else None
@@ -104,6 +123,23 @@ async def check_sales(product_id: str):
         print(e)
         return str(e)
 
+# Background task to remove users from the queue after they are done
+def process_queues():
+    while True:
+        with queue_lock:
+            current_time = time.time()
+            for queue_name in queues:
+                # Remove users who have completed their checkout time
+                queues[queue_name] = [
+                    timestamp for i, timestamp in enumerate(queues[queue_name])
+                    if current_time - timestamp < CHECKOUT_TIME * (i + 1)
+                ]
+        time.sleep(10)  # Check every 10 seconds
+
+
+# Start the background task
+threading.Thread(target=process_queues, daemon=True).start()
+
 @app.get("/product/{barcode}")
 async def get_product(barcode: str):
     try:
@@ -112,10 +148,14 @@ async def get_product(barcode: str):
         if not response.data:
             raise HTTPException(status_code=404, detail="Product not found")
         
-        product = response.data[0]       
+        product = response.data[0]
+
         # Fetch sales information
         sale_info = await check_sales(product['prod_id'])
-        recommendations = await outputfn(product['price'],product['name'],product['description'])
+
+        # Fetch recommendations using the Gemini model
+        recommendations = await outputfn(product['price'], product['name'], product['description'])
+
         # Add sales information to the product details if available
         if sale_info:
             product['sale_price'] = sale_info.get('sale_price')
@@ -125,5 +165,60 @@ async def get_product(barcode: str):
         product['recommendations'] = recommendations
 
         return product
+
     except Exception as e:
-        print("Error occured at /product/barcocde route: ",str(e))
+        print("Error occurred at /product/barcode route: ", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.post("/allocate_queue", response_model=QueueAllocationResponse)
+async def allocate_and_status():
+    try:
+        with queue_lock:
+            # Find the queue with the least number of people
+            least_busy_queue = min(queues, key=lambda k: len(queues[k]))
+            current_time = time.time()
+
+            # Calculate the estimated time for this person
+            if len(queues[least_busy_queue]) == 0:
+                estimated_time = 0  # First person in the queue has no wait time
+            else:
+                # Calculate the time required for all people ahead in the queue
+                total_time = 0
+                for i, timestamp in enumerate(queues[least_busy_queue]):
+                    time_passed = current_time - timestamp
+                    time_remaining = max(0, CHECKOUT_TIME - time_passed)
+                    total_time += time_remaining
+
+                estimated_time = int(total_time + CHECKOUT_TIME)
+
+            # Add the current time to the queue
+            queues[least_busy_queue].append(current_time)
+
+            # Update the status of all queues
+            status = {}
+            for queue_name, queue in queues.items():
+                remaining_times = []
+                for i, timestamp in enumerate(queue):
+                    if i == 0:
+                        time_remaining = int(max(0, CHECKOUT_TIME - (current_time - timestamp)))
+                    else:
+                        # Subsequent people have to wait for the previous one to finish
+                        time_remaining = int(remaining_times[-1] + CHECKOUT_TIME)
+                    remaining_times.append(time_remaining)
+                status[queue_name] = {
+                    "total_people": len(queue),
+                    "remaining_times": remaining_times
+                }
+
+        return {
+            "queue_name": least_busy_queue,
+            "estimated_time": estimated_time,  # The correct estimated time for the last person added to the queue
+            "position": len(queues[least_busy_queue]),  # Position should reflect the actual size of the queue
+            "queue_status": status
+        }
+
+    except Exception as e:
+        print("Error occurred at /allocate_queue route: ", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+

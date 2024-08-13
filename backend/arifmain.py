@@ -22,8 +22,7 @@ model = genai.GenerativeModel("gemini-1.5-pro-latest")
 # Queue Configuration
 queues = {
     "queue1": [],
-    "queue2": [],
-    "queue3": []
+    "queue2": []
 }
 CHECKOUT_TIME = 2 * 60  # in seconds
 queue_lock = threading.Lock()

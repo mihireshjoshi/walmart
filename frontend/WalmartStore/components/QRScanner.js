@@ -79,12 +79,13 @@ const QRScanner = ({ navigation }) => {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-
+  
     try {
       const position = JSON.parse(data);
       if (position.x !== undefined && position.y !== undefined) {
         dispatch(setPosition(position));
-        navigation.navigate('MapView'); // Navigate back to the map view
+        console.log('Scanned QR code data:', position);
+        navigation.navigate('MapView', { scannedPosition: position }); // Navigate back to the map view with the scanned position
       } else {
         alert('Invalid QR code data');
       }
@@ -92,6 +93,7 @@ const QRScanner = ({ navigation }) => {
       alert('Error parsing QR code data');
     }
   };
+  
 
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;

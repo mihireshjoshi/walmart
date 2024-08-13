@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+import RNPickerSelect from 'react-native-picker-select';
 
 const GridPathFinder = () => {
   const [path, setPath] = useState([]);
+  const [start, setStart] = useState({ row: 11, col: 2 }); // Default start position (Entry)
+  const [end, setEnd] = useState({ row: 10, col: 12 }); // Default end position (Exit)
 
   // Original base map grid (no scaling)
   const grid = [
-    [2, 2, 2, 0, 3, 3, 3, 0, 4, 4, 4],
-    [2, 2, 2, 0, 3, 3, 3, 0, 4, 4, 4],
-    [2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 4],
-    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 5],
+    [1, 2, 2, 2, 2, 2, 0, 3, 3, 3, 3, 3, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [6, 0, 7, 7, 7, 0, 8, 8, 8, 0, 9, 9, 9, 0, 10, 10, 10, 0, 11, 0, 12, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 12, 0],
+    [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 0, 0, 0, 0, 0],
+    [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 23, 23, 23, 23, 0],
+    [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 23, 23, 23, 23, 0],
+    [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 0, 0, 0, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 0, 99, 0, 99, 0, 0, 0, 0, 0],
+    [6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 100, 99, 100, 99, 100, 0, 0, 0, 0],
   ];
 
   // Calculate cell size dynamically based on the screen width and grid dimensions
@@ -24,20 +32,12 @@ const GridPathFinder = () => {
   // Create the pathway grid
   const pathwayGrid = grid.map(row => row.map(cell => (cell === 0 || cell === 6 ? 0 : 1)));
 
-  // Define the start and end positions
-  const start = { row: 6, col: 5 };
-  const end = { row: 3, col: 10 };
-
   // 4-directional movements (no diagonals)
   const directions = [
     { row: -1, col: 0 }, // up
     { row: 1, col: 0 },  // down
     { row: 0, col: -1 }, // left
     { row: 0, col: 1 },  // right
-    // { row: -1, col: -1 }, // up-left
-    // { row: -1, col: 1 },  // up-right
-    // { row: 1, col: -1 },  // down-left
-    // { row: 1, col: 1 }    // down-right
   ];
 
   // BFS to find the shortest path
@@ -80,7 +80,57 @@ const GridPathFinder = () => {
 
   useEffect(() => {
     findPath();
-  }, []);
+  }, [start, end]);
+
+  const handleStartChange = (value) => {
+    const closestPath = findClosestPathway(value);
+    setStart(closestPath);
+  };
+
+  const handleEndChange = (value) => {
+    const closestPath = findClosestPathway(value);
+    setEnd(closestPath);
+  };
+
+
+  const findClosestPathway = (section) => {
+   
+    const { row, col } = section;
+    
+  
+    // Check bounds and ensure the section is within the grid.
+    if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length) {
+      console.error("Invalid section coordinates");
+      return { row: 0, col: 0 }; // Fallback to a default location, e.g., (0, 0)
+    }
+  
+    const queue = [{ row, col }];
+    const visited = new Set();
+  
+    while (queue.length > 0) {
+      const { row: curRow, col: curCol } = queue.shift();
+      if (pathwayGrid[curRow][curCol] === 0) {
+        return { row: curRow, col: curCol };
+      }
+      visited.add(`${curRow},${curCol}`);
+      directions.forEach(({ row: dRow, col: dCol }) => {
+        const newRow = curRow + dRow;
+        const newCol = curCol + dCol;
+        if (
+          newRow >= 0 &&
+          newCol >= 0 &&
+          newRow < grid.length &&
+          newCol < grid[0].length
+        ) {
+          if (!visited.has(`${newRow},${newCol}`)) {
+            queue.push({ row: newRow, col: newCol });
+          }
+        }
+      });
+    }
+    return section; // Return original section coordinates if no path found
+  };
+  
 
   const renderGrid = () => {
     return grid.map((row, rowIndex) => (
@@ -92,12 +142,31 @@ const GridPathFinder = () => {
               style={[
                 styles.cell,
                 { width: cellSize, height: cellSize },
-                cell === 1 ? styles.blockedCell : null,
-                cell === 2 ? styles.foodSection : null,
-                cell === 3 ? styles.clothingSection : null,
-                cell === 4 ? styles.appliancesSection : null,
-                cell === 5 ? styles.entrySection : null,
-                cell === 6 ? styles.exitSection : null,
+                cell === 1 ? styles.blockedCell : null,           // Blocked
+                cell === 2 ? styles.section2 : null,              // Section 2
+                cell === 3 ? styles.section3 : null,              // Section 3
+                cell === 4 ? styles.section4 : null,              // Section 4
+                cell === 6 ? styles.aisle : null,                 // Aisle
+                cell === 7 ? styles.section7 : null,              // Section 7
+                cell === 8 ? styles.section8 : null,              // Section 8
+                cell === 9 ? styles.section9 : null,              // Section 9
+                cell === 10 ? styles.section10 : null,            // Section 10
+                cell === 11 ? styles.section11 : null,            // Section 11
+                cell === 12 ? styles.section12 : null,            // Section 12
+                cell === 13 ? styles.section13 : null,            // Section 13
+                cell === 14 ? styles.section14 : null,            // Section 14
+                cell === 15 ? styles.section15 : null,            // Section 15
+                cell === 16 ? styles.section16 : null,            // Section 16
+                cell === 17 ? styles.section17 : null,            // Section 17
+                cell === 18 ? styles.section18 : null,            // Section 18
+                cell === 19 ? styles.section19 : null,            // Section 19
+                cell === 20 ? styles.section20 : null,            // Section 20
+                cell === 21 ? styles.section21 : null,            // Section 21
+                cell === 22 ? styles.section22 : null,            // Section 22
+                cell === 23 ? styles.section23 : null,            // Section 23
+                cell === 98 ? styles.entrySection : null,         // Entry
+                cell === 99 ? styles.cashCounter : null,          // Cash Counter
+                cell === 100 ? styles.exitSection : null,         // Exit
               ]}
             />
           );
@@ -128,7 +197,7 @@ const GridPathFinder = () => {
           strokeLinejoin="round"
         />
         <Image
-          source={require('/Users/mihiresh/Mihiresh/Work/Walmart/walmart/frontend/WalmartStore/assets/start.png')} // Replace with your user standing icon
+          source={require('../assets/start.png')} // Replace with your user standing icon
           style={{
             position: 'absolute',
             width: cellSize,
@@ -139,7 +208,7 @@ const GridPathFinder = () => {
           }}
         />
         <Image
-          source={require('/Users/mihiresh/Mihiresh/Work/Walmart/walmart/frontend/WalmartStore/assets/end.png')} // Replace with your pin icon
+          source={require('../assets/end.png')} // Replace with your pin icon
           style={{
             position: 'absolute',
             width: cellSize,
@@ -155,6 +224,33 @@ const GridPathFinder = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.dropdownContainer}>
+        <Text>Select Start Point:</Text>
+        <RNPickerSelect
+          onValueChange={handleStartChange}
+          items={[
+            { label: 'Entry (10, 2)', value: { row: 10, col: 2 } },
+            { label: 'Section 13 (5, 2)', value: { row: 5, col: 2 } },
+            { label: 'Section 14 (5, 3)', value: { row: 5, col: 3 } },
+            { label: 'Section 7 (3, 2)', value: { row: 3, col: 2 } },
+            { label: 'Cash Counter (11, 13)', value: { row: 11, col: 13 } },
+            // Add all other sections here...
+          ]}
+        />
+
+        <Text>Select End Point:</Text>
+        <RNPickerSelect
+          onValueChange={handleEndChange}
+          items={[
+            { label: 'Exit (2, 17)', value: { row: 2, col: 19 } },
+            { label: 'Section 7 (3, 7)', value: { row: 3, col: 7 } },
+            { label: 'Section 23 (5, 20)', value: { row: 5, col: 20 } },
+            { label: 'Cash Counter (11, 12)', value: { row: 11, col: 12 } },
+            // Add all other sections here...
+          ]}
+        />
+      </View>
+
       <View style={[styles.gridContainer, { width: cellSize * grid[0].length, height: cellSize * grid.length }]}>
         {renderGrid()}
         {renderPathLine()}
@@ -180,6 +276,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dropdownContainer: {
+    marginBottom: 20,
+    width: '100%',
+  },
   gridContainer: {
     position: 'relative',
     marginBottom: 20,
@@ -196,20 +296,77 @@ const styles = StyleSheet.create({
   blockedCell: {
     backgroundColor: '#d1d1d6',
   },
-  foodSection: {
+  section2: {
     backgroundColor: '#ff6f61',
   },
-  clothingSection: {
-    backgroundColor: '#007aff',
+  section3: {
+    backgroundColor: '#ffab40',
   },
-  appliancesSection: {
-    backgroundColor: '#5856d6',
+  section4: {
+    backgroundColor: '#ffeb3b',
+  },
+  aisle: {
+    backgroundColor: '#b0bec5', // Light gray for aisle
+  },
+  section7: {
+    backgroundColor: '#66bb6a',
+  },
+  section8: {
+    backgroundColor: '#42a5f5',
+  },
+  section9: {
+    backgroundColor: '#5c6bc0',
+  },
+  section10: {
+    backgroundColor: '#ab47bc',
+  },
+  section11: {
+    backgroundColor: '#ec407a',
+  },
+  section12: {
+    backgroundColor: '#8d6e63',
+  },
+  section13: {
+    backgroundColor: '#d4e157',
+  },
+  section14: {
+    backgroundColor: '#9ccc65',
+  },
+  section15: {
+    backgroundColor: '#4db6ac',
+  },
+  section16: {
+    backgroundColor: '#26c6da',
+  },
+  section17: {
+    backgroundColor: '#29b6f6',
+  },
+  section18: {
+    backgroundColor: '#7e57c2',
+  },
+  section19: {
+    backgroundColor: '#ff7043',
+  },
+  section20: {
+    backgroundColor: '#8bc34a',
+  },
+  section21: {
+    backgroundColor: '#cddc39',
+  },
+  section22: {
+    backgroundColor: '#ffc107',
+  },
+  section23: {
+    backgroundColor: '#ff5722',
   },
   entrySection: {
-    backgroundColor: '#5ac8fa',
+    backgroundColor: '#34c759',
+  },
+  cashCounter: {
+    backgroundColor: '#616161',
   },
   exitSection: {
-    backgroundColor: '#ff9500',
+    backgroundColor: '#ff3b30',
   },
   info: {
     fontSize: 18,

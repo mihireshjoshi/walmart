@@ -18,7 +18,7 @@ const QueueStatus = ({ route }) => {
     }, [timeRemaining]);
 
     const handleBackToHome = () => {
-        navigation.navigate('Home'); // Assuming 'Home' is your landing page
+        navigation.navigate('LandingPage'); // Assuming 'Home' is your landing page
     };
 
     return (

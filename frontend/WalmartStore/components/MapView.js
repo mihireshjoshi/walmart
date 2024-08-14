@@ -14,24 +14,16 @@ import {
   Rect,
   Line,
   G,
-  Path,
   Image,
   Text as SvgText,
-  SvgImage,
 } from "react-native-svg";
 import { Picker } from "@react-native-picker/picker";
 import { aStar, findShortestPath } from "./pathfindingUtils";
 import { generateDirections } from "./directionsUtils";
 import {
   TouchableOpacity,
-  PinchGestureHandler,
-  GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from "react-native-reanimated";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Constants for dimensions
@@ -39,8 +31,6 @@ const buyerIconWidth = 40;
 const buyerIconHeight = 43;
 const locationIconWidth = 43;
 const locationIconHeight = 43;
-const circleRadius = Math.max(buyerIconWidth, buyerIconHeight) / 2 - 5;
-const circleColor = "#0B2D56";
 const windowWidth = Dimensions.get("window").width;
 const gridSize = 30;
 
@@ -334,19 +324,29 @@ const MapView = ({ navigation, route }) => {
   const [directions, setDirections] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentOffer, setCurrentOffer] = useState("");
-  const [shoppingList, setShoppingList] = useState([
-    "Grocery",
-    "Electronics",
-    "Pharmacy",
-  ]); // New state for shopping list
+  const [shoppingList, setShoppingList] = useState([]);
   const [checkedItems, setCheckedItems] = useState({});
 
+  // Load shopping list from AsyncStorage
   useEffect(() => {
-    if (route.params && route.params.scannedPosition) {
-      setSource(route.params.scannedPosition);
-    }
-  }, [route.params?.scannedPosition]);
+    const loadShoppingList = async () => {
+      try {
+        const savedList = await AsyncStorage.getItem("List_sections");
+        console.log(savedList);
+        if (savedList) {
+          setShoppingList(JSON.parse(savedList));
+        } else {
+          // If no saved list, use default values
+          setShoppingList(["Grocery", "Electronics", "Pharmacy"]);
+        }
+      } catch (error) {
+        console.error("Failed to load shopping list from AsyncStorage", error);
+      }
+    };
+    loadShoppingList();
+  }, []);
 
+  // Update path when source, destination, or shopping list changes
   useEffect(() => {
     const start = source ? source : { x: 0, y: 0 };
     const selectedDestinations = shoppingList
@@ -363,20 +363,74 @@ const MapView = ({ navigation, route }) => {
   };
 
   const handleDestinationChange = (itemValue) => {
-    setDestination(locations[itemValue]);
+    const selectedLocation = locations[itemValue];
+  
+    if (shoppingList.length > 0) {
+      // If there's an existing shopping list, add the destination to it and recalculate the path
+      setShoppingList((prevList) => {
+        if (!prevList.includes(itemValue)) {
+          return [...prevList, itemValue];
+        }
+        return prevList; // If the item is already in the list, don't add it again
+      });
+    } else {
+      // If there's no shopping list, set the destination as the only item
+      setShoppingList([itemValue]);
+    }
+  
+    setSource((prevSource) => {
+      const start = prevSource ? prevSource : { x: 0, y: 0 };
+      const selectedDestinations = shoppingList
+        .filter((item) => item !== itemValue)
+        .map((item) => locations[item]);
+  
+      const newPath = findShortestPath(start, [selectedLocation, ...selectedDestinations], storeLayout);
+      setPath([start, ...newPath]);
+      setDirections(generateDirections(newPath));
+  
+      return prevSource;
+    });
   };
 
-  const handleAddItem = (item) => {
-    setShoppingList([...shoppingList, item]);
-    setCheckedItems({ ...checkedItems, [item]: false });
-  };
-
-  const handleCheckItem = (item) => {
-    setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
-    if (!checkedItems[item]) {
-      setSource(locations[item]);
+  const handleCheckItem = async (item) => {
+    const newSource = locations[item];
+    setSource(newSource);
+  
+    const start = newSource;
+    const selectedDestinations = shoppingList
+      .filter((listItem) => listItem !== item)
+      .map((listItem) => locations[listItem]);
+  
+    const newPath = findShortestPath(start, selectedDestinations, storeLayout);
+    setPath([start, ...newPath]);
+    setDirections(generateDirections(newPath));
+  
+    // Remove the item from the shopping list
+    const updatedList = shoppingList.filter((listItem) => listItem !== item);
+    setShoppingList(updatedList);
+  
+    // Update the AsyncStorage with the new list
+    try {
+      await AsyncStorage.setItem('List_sections', JSON.stringify(updatedList));
+      console.log('AsyncStorage updated:', updatedList);
+    } catch (error) {
+      console.error('Error updating AsyncStorage:', error);
     }
   };
+
+  // const handleCheckItem = (item) => {
+  //   setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
+    
+  //   // Remove the item from the shopping list
+  //   setShoppingList((prevList) => prevList.filter((listItem) => listItem !== item));
+  // };
+
+  // const handleCheckItem = (item) => {
+  //   setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
+  //   if (!checkedItems[item]) {
+  //     setSource(locations[item]);
+  //   }
+  // };
 
   const lastPathBlock = path.length > 0 ? path[path.length - 1] : source;
 
@@ -395,7 +449,7 @@ const MapView = ({ navigation, route }) => {
     return brightness > 127.5 ? "black" : "white"; // Return black for light colors, white for dark colors
   };
 
-  const [offers, setOffers] = useState({
+  const [offers] = useState({
     Clothing: "Buy 1 Get 1 Free!",
     Electronics: "Up to 50% off on selected items",
     Outdoor: "20% off on all items",
@@ -411,51 +465,50 @@ const MapView = ({ navigation, route }) => {
 
   return (
     <ScrollView>
-      <ScrollView horizontal style={styles.container}>
-        <ScrollView style={styles.container}>
-          <Svg
-            height={storeLayout.length * gridSize}
-            width={storeLayout[0].length * gridSize}
-            viewBox={`0 0 ${storeLayout[0].length * gridSize} ${
-              storeLayout.length * gridSize
-            }`}
-          >
-            {storeLayout.map((row, y) =>
-              row.map((cell, x) => {
-                let fillColor = colors[cell] || "white";
-                if (sectionColors[cell]) {
-                  fillColor = sectionColors[cell];
-                }
-                return (
-                  <G key={`${x}-${y}`}>
-                    <Rect
-                      x={x * gridSize}
-                      y={y * gridSize}
-                      width={gridSize}
-                      height={gridSize}
-                      fill={fillColor}
-                    />
-                    {/* Add a star icon if the cell has an offer */}
-                    {offers[cell] && (
-                      <TouchableOpacity
-                        onPress={() => handleCellPress(cell)}
-                        style={{
-                          position: "absolute",
-                          left: x * gridSize,
-                          top: y * gridSize,
-                          width: gridSize,
-                          height: gridSize,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <MaterialIcons name="star" size={20} color="gold" />
-                      </TouchableOpacity>
-                    )}
-                  </G>
-                );
-              })
-            )}
+    <ScrollView horizontal style={styles.container}>
+      <ScrollView style={styles.container}>
+        <Svg
+          height={storeLayout.length * gridSize}
+          width={storeLayout[0].length * gridSize}
+          viewBox={`0 0 ${storeLayout[0].length * gridSize} ${
+            storeLayout.length * gridSize
+          }`}
+        >
+          {storeLayout.map((row, y) =>
+            row.map((cell, x) => {
+              let fillColor = colors[cell] || "white";
+              if (sectionColors[cell]) {
+                fillColor = sectionColors[cell];
+              }
+              return (
+                <G key={`${x}-${y}`}>
+                  <Rect
+                    x={x * gridSize}
+                    y={y * gridSize}
+                    width={gridSize}
+                    height={gridSize}
+                    fill={fillColor}
+                  />
+                  {offers[cell] && (
+                    <TouchableOpacity
+                      onPress={() => handleCellPress(cell)}
+                      style={{
+                        position: "absolute",
+                        left: x * gridSize,
+                        top: y * gridSize,
+                        width: gridSize,
+                        height: gridSize,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialIcons name="star" size={20} color="gold" />
+                    </TouchableOpacity>
+                  )}
+                </G>
+              );
+            })
+          )}
 
             {/* Manually placed labels */}
             <SvgText
@@ -504,7 +557,6 @@ const MapView = ({ navigation, route }) => {
               fill="white"
               textAnchor="middle"
               alignmentBaseline="middle"
-              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
             >
               Checkout
             </SvgText>
@@ -530,7 +582,6 @@ const MapView = ({ navigation, route }) => {
               fill="white"
               textAnchor="middle"
               alignmentBaseline="middle"
-              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
             >
               Grocery
             </SvgText>
@@ -543,7 +594,6 @@ const MapView = ({ navigation, route }) => {
               fill="white"
               textAnchor="middle"
               alignmentBaseline="middle"
-              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
             >
               Electronics
             </SvgText>
@@ -734,7 +784,6 @@ const MapView = ({ navigation, route }) => {
               fill="#0B2D56" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
-              // transform={`rotate(90, 436, 180)`}
             >
               A
             </SvgText>
@@ -747,7 +796,6 @@ const MapView = ({ navigation, route }) => {
               fill="#0B2D56" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
-              // transform={`rotate(90, 436, 180)`}
             >
               B
             </SvgText>
@@ -760,12 +808,9 @@ const MapView = ({ navigation, route }) => {
               fill="#0B2D56" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
-              // transform={`rotate(90, 436, 180)`}
             >
               C
             </SvgText>
-
-            {/* Add more labels as needed */}
 
             {path.map(
               (point, index) =>
@@ -797,24 +842,26 @@ const MapView = ({ navigation, route }) => {
               />
             </G>
 
-            {/* Destination Marker on the last path block */}
-            <G
-              transform={`translate(${
-                lastPathBlock.x * gridSize +
-                gridSize / 2 -
-                locationIconWidth / 2
-              }, ${
-                lastPathBlock.y * gridSize +
-                gridSize / 2 -
-                locationIconHeight / 2
-              })`}
-            >
-              <Image
-                href={require("../assets/location.png")}
-                width={locationIconWidth}
-                height={locationIconHeight}
-              />
-            </G>
+             {/* Destination Marker on the last path block */}
+             {lastPathBlock && (
+              <G
+                transform={`translate(${
+                  lastPathBlock.x * gridSize +
+                  gridSize / 2 -
+                  locationIconWidth / 2
+                }, ${
+                  lastPathBlock.y * gridSize +
+                  gridSize / 2 -
+                  locationIconHeight / 2
+                })`}
+              >
+                <Image
+                  href={require("../assets/location.png")}
+                  width={locationIconWidth}
+                  height={locationIconHeight}
+                />
+              </G>
+            )}
           </Svg>
         </ScrollView>
       </ScrollView>
@@ -865,21 +912,23 @@ const MapView = ({ navigation, route }) => {
           </TouchableOpacity>
 
           {/* Product List */}
-          <View style={styles.productListContainer}>
-            <Text style={styles.productListTitle}>Shopping List</Text>
-            <FlatList
-              data={shoppingList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.productListItem}
-                  onPress={() => handleCheckItem(item)}
-                >
-                  <Text style={styles.productListText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item}
-            />
-          </View>
+      {shoppingList.length > 0 && (
+        <View style={styles.productListContainer}>
+          <Text style={styles.productListTitle}>Shopping List</Text>
+          <FlatList
+            data={shoppingList}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.productListItem}
+                onPress={() => handleCheckItem(item)}
+              >
+                <Text style={styles.productListText}>{item}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item}
+          />
+        </View>
+      )}
         </ScrollView>
       </View>
 
@@ -896,10 +945,7 @@ const MapView = ({ navigation, route }) => {
             <Text style={styles.modalText}>{currentOffer}</Text>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => {
-                console.log("Close button pressed"); // Debugging log
-                setModalVisible(false); // Close the modal
-              }}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -909,6 +955,7 @@ const MapView = ({ navigation, route }) => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -948,7 +995,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: "auto",
     paddingVertical: 10,
     borderRadius: 8,
-    // marginBottom: 120,
     marginTop: 12,
     elevation: 1,
   },
@@ -1029,67 +1075,3 @@ const styles = StyleSheet.create({
 });
 
 export default MapView;
-
-// Comment:
-
-// <View style={styles.topPop}>
-
-//   <View style={styles.optPop}>
-//     <View style={styles.select}>
-//       <Text>Source</Text>
-//       <View style={styles.picker}>
-//         <Picker
-//           selectedValue={Object.keys(locations).find(key => locations[key] === source)}
-//           onValueChange={handleSourceChange}
-//         >
-//           {Object.keys(locations).map((key) => (
-//             <Picker.Item label={key} value={key} key={key} />
-//           ))}
-//         </Picker>
-//       </View>
-//     </View>
-
-//     <View style={styles.select}>
-//       <Text>Destination</Text>
-//       <View style={styles.picker}>
-//         <Picker
-//           selectedValue={Object.keys(locations).find(key => locations[key] === destination)}
-//           onValueChange={handleDestinationChange}
-//         >
-//           {Object.keys(locations).map((key) => (
-//             <Picker.Item label={key} value={key} key={key} />
-//           ))}
-//         </Picker>
-//       </View>
-//     </View>
-//   </View>
-
-//   <TouchableOpacity
-//     onPress={() => {
-//       navigation.navigate('QRScanner');
-//     }}
-//     style={styles.qrButton}
-//   >
-//     <Text style={styles.qrTxt}>Scan your current location QR</Text>
-//   </TouchableOpacity>
-
-//   {/* Product List */}
-//   <View style={styles.productListContainer}>
-//     <Text style={styles.productListTitle}>Shopping List</Text>
-//     <FlatList
-//       data={shoppingList}
-//       renderItem={({ item }) => (
-//         <TouchableOpacity
-//           style={styles.productListItem}
-//           onPress={() => handleCheckItem(item)}
-//         >
-//           <Text style={styles.productListText}>
-//             {item}
-//           </Text>
-//         </TouchableOpacity>
-//       )}
-//       keyExtractor={(item) => item}
-//     />
-//   </View>
-
-// </View>

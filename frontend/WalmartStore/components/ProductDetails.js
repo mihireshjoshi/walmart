@@ -28,32 +28,72 @@ const ProductDetails = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.detailsContainer}>
-                <Text style={styles.title}>{product.name}</Text>
-
-                {product.sale_price && product.discount_percentage ? (
-                    <View>
-                        <Text style={styles.originalPrice}>
-                            Original Price: ${parseFloat(product.price).toFixed(2)}
+                <View style={styles.mainBox}>
+                    <Text style={styles.title}>{product.name}</Text>
+                    <Text style={styles.description}>{product.description}</Text>
+                    {product.sale_price && product.discount_percentage ? (
+                        <View>
+                            <View style={styles.priceView}>
+                                <Text style={styles.originalPriceTxt}>
+                                    Original Price:
+                                </Text>
+                                <Text style={styles.originalPrice}>
+                                    ${parseFloat(product.price).toFixed(2)}
+                                </Text>
+                            </View>
+                            <Text style={styles.salePrice}>
+                                Sale Price: ${parseFloat(product.sale_price).toFixed(2)} ({product.discount_percentage}% OFF)
+                            </Text>
+                        </View>
+                    ) : (
+                        <View style={styles.priceView}>
+                            <Text style={styles.originalPriceTxt}>
+                                Price:
+                            </Text>
+                            <Text style={styles.Price}>
+                                ${parseFloat(product.price).toFixed(2)}
+                            </Text>
+                        </View>
+                        
+                    )}
+                    <View style={styles.priceView}>
+                        <Text style={styles.originalPriceTxt}>
+                            Total:
                         </Text>
-                        <Text style={styles.salePrice}>
-                            Sale Price: ${parseFloat(product.sale_price).toFixed(2)} ({product.discount_percentage}% OFF)
+                        <Text style={styles.Price}>
+                            ${totalPrice.toFixed(2)}
                         </Text>
                     </View>
-                ) : (
-                    <Text style={styles.price}>Price: ${parseFloat(product.price).toFixed(2)}</Text>
-                )}
 
-                <Text style={styles.totalPrice}>Total: ${totalPrice.toFixed(2)}</Text>
-                <Text style={styles.description}>{product.description}</Text>
+                    <View style={styles.quantityContainer}>
+                        <TouchableOpacity onPress={decreaseQuantity} style={styles.plusMinus}>
+                            <Text style={styles.plusMinusTxt}>-</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.quantity}>{quantity}</Text>
+                        <TouchableOpacity onPress={increaseQuantity} style={styles.plusMinus}>
+                            <Text style={styles.plusMinusTxt}>+</Text>
+                        </TouchableOpacity>
+                        
+                        {/* <Button title="-" onPress={decreaseQuantity} />
+                        <Text style={styles.quantity}>{quantity}</Text>
+                        <Button title="+" onPress={increaseQuantity} /> */}
+                    </View>
 
-                <View style={styles.quantityContainer}>
-                    <Button title="-" onPress={decreaseQuantity} />
-                    <Text style={styles.quantity}>{quantity}</Text>
-                    <Button title="+" onPress={increaseQuantity} />
+                    <View style={styles.cartOps}>
+                        <TouchableOpacity onPress={handleAddToCart} style={styles.cartBtn}>
+                            <Text style={styles.cartTxt}>Add to Cart</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartBtn}>
+                            <Text style={styles.cartTxt}>Go to Cart</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+                
+                
 
-                <Button title="Add to Cart" onPress={handleAddToCart} style={{ marginTop: 20 }} />
-                <Button title="Go to Cart" onPress={() => navigation.navigate('Cart')} />
+                {/* <Button title="Add to Cart" onPress={handleAddToCart} style={{ marginTop: 20 }} />
+                <Button title="Go to Cart" onPress={() => navigation.navigate('Cart')} /> */}
 
                 {/* Display recommended products */}
                 {product.recommendations && product.recommendations.length > 0 && (
@@ -99,7 +139,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     detailsContainer: {
+        padding: 10,
+    },
+    mainBox: {
+        backgroundColor: "#E6E6FA",
         padding: 20,
+        borderRadius: 12,
+        elevation: 3
+        // borderWidth: 2,
+        // borderColor: "#fff"
     },
     title: {
         fontSize: 24,
@@ -123,9 +171,10 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     description: {
-        marginTop: 10,
+        marginTop: 2,
+        marginBottom: 20,
         fontSize: 16,
-        color: '#555',
+        color: '#513689',
     },
     quantityContainer: {
         flexDirection: 'row',
@@ -134,7 +183,8 @@ const styles = StyleSheet.create({
     },
     quantity: {
         fontSize: 18,
-        marginHorizontal: 10,
+        paddingHorizontal: 10,
+        backgroundColor: "#C3B5E2"
     },
     recommendationsContainer: {
         marginTop: 20,
@@ -172,6 +222,45 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
     },
+    cartOps: {
+        flexDirection: "column",
+        marginTop: 20
+        // justifyContent: "space-around"
+    },
+    cartBtn: {
+        marginTop: 4,
+        backgroundColor: "#4B0082",
+        color: "white",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 4
+    },
+    cartTxt: {
+        color: "white",
+        textAlign: "center"
+    },
+    priceView: {
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    originalPriceTxt: {
+        fontSize: 18
+    },
+    plusMinus: {
+        backgroundColor: "#4B0082",
+        width: 24,
+        height: 30,
+        borderRadius: 4
+    },
+    plusMinusTxt: {
+        fontSize: 20,
+        textAlign: "center",
+        color: "white"
+    },
+    Price: {
+        color: "#4B0082",
+        fontWeight: "bold"
+    }
 });
 
 export default ProductDetails;

@@ -102,28 +102,48 @@
 // });
 
 // export default QueueStatus;
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
+import SvgQRCode from 'react-native-qrcode-svg';
+import { CartContext } from '../context/CartContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const QueueStatus = ({ route }) => {
     const { queueInfo } = route.params;
     const [timeRemaining, setTimeRemaining] = useState(queueInfo.estimated_time);
     const navigation = useNavigation();
+    const { clearCart } = useContext(CartContext);
 
     useEffect(() => {
+        const calculateRemainingTime = async () => {
+            const allocationTime = await AsyncStorage.getItem('allocationTime');
+            if (allocationTime) {
+                const elapsed = Math.floor((Date.now() - parseInt(allocationTime, 10)) / 1000);
+                const remaining = queueInfo.estimated_time - elapsed;
+                setTimeRemaining(remaining > 0 ? remaining : 0);
+            }
+        };
+
+        calculateRemainingTime();
+
         if (timeRemaining > 0) {
             const timer = setInterval(() => {
                 setTimeRemaining((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
             }, 1000);
 
             return () => clearInterval(timer);
+        } else {
+            // When timeRemaining reaches 0, clear the stored queue info
+            AsyncStorage.removeItem('queueInfo');
+            AsyncStorage.removeItem('allocationTime');
         }
     }, [timeRemaining]);
 
-    const handleBackToHome = () => {
-        navigation.navigate('LandingPage'); // Assuming 'LandingPage' is your home screen
+    const handleDoneShopping = () => {
+        clearCart(); // Clear the cart
+        navigation.navigate('LandingPage'); // Redirect to home page
     };
 
     const radius = 60;
@@ -131,7 +151,6 @@ const QueueStatus = ({ route }) => {
     const circleLength = 2 * Math.PI * radius;
     const progress = (timeRemaining / queueInfo.estimated_time) * circleLength;
 
-    // Convert seconds to mm:ss format
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
     const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -140,47 +159,55 @@ const QueueStatus = ({ route }) => {
         <View style={styles.container}>
             <Text style={styles.title}>Queue Status</Text>
             <Text style={styles.infoText}>Queue Name: {queueInfo.queue_name}</Text>
-            <View style={styles.timerContainer}>
-                <Svg width={radius * 2 + strokeWidth} height={radius * 2 + strokeWidth}>
-                    <Circle
-                        cx={radius + strokeWidth / 2}
-                        cy={radius + strokeWidth / 2}
-                        r={radius}
-                        stroke="#e0e0e0"
-                        strokeWidth={strokeWidth}
-                        fill="none"
-                    />
-                    <Circle
-                        cx={radius + strokeWidth / 2}
-                        cy={radius + strokeWidth / 2}
-                        r={radius}
-                        stroke="#00aaff"
-                        strokeWidth={strokeWidth}
-                        strokeDasharray={circleLength}
-                        strokeDashoffset={circleLength - progress}
-                        fill="none"
-                        rotation="-90"
-                        originX={radius + strokeWidth / 2}
-                        originY={radius + strokeWidth / 2}
-                    />
-                    <SvgText
-                        x={radius + strokeWidth / 2}
-                        y={radius + strokeWidth / 2}
-                        fontSize="20"
-                        fill="#000"
-                        textAnchor="middle"
-                        alignmentBaseline="middle"
-                    >
-                        {formattedTime}
-                    </SvgText>
-                </Svg>
-            </View>
+
             {timeRemaining > 0 ? (
-                <Text style={styles.infoText}>Estimated Wait Time: {formattedTime} minutes</Text>
+                <>
+                    <View style={styles.timerContainer}>
+                        <Svg width={radius * 2 + strokeWidth} height={radius * 2 + strokeWidth}>
+                            <Circle
+                                cx={radius + strokeWidth / 2}
+                                cy={radius + strokeWidth / 2}
+                                r={radius}
+                                stroke="#e0e0e0"
+                                strokeWidth={strokeWidth}
+                                fill="none"
+                            />
+                            <Circle
+                                cx={radius + strokeWidth / 2}
+                                cy={radius + strokeWidth / 2}
+                                r={radius}
+                                stroke="#00aaff"
+                                strokeWidth={strokeWidth}
+                                strokeDasharray={circleLength}
+                                strokeDashoffset={circleLength - progress}
+                                fill="none"
+                                rotation="-90"
+                                originX={radius + strokeWidth / 2}
+                                originY={radius + strokeWidth / 2}
+                            />
+                            <SvgText
+                                x={radius + strokeWidth / 2}
+                                y={radius + strokeWidth / 2}
+                                fontSize="20"
+                                fill="#000"
+                                textAnchor="middle"
+                                alignmentBaseline="middle"
+                            >
+                                {formattedTime}
+                            </SvgText>
+                        </Svg>
+                    </View>
+                    <Text style={styles.infoText}>Estimated Wait Time: {formattedTime} minutes</Text>
+                </>
             ) : (
-                <Text style={styles.infoText}>You can now proceed to the queue.</Text>
+                <View style={styles.doneContainer}>
+                    <Text style={styles.doneText}>You can now proceed to the queue.</Text>
+                    <SvgQRCode value="Thank you" size={150} />
+                    <Button title="Done Shopping" onPress={handleDoneShopping} />
+                </View>
             )}
-            <Button title="Back to Home" onPress={handleBackToHome} />
+
+            <Button title="Back to Home" onPress={() => navigation.navigate('LandingPage')} />
         </View>
     );
 };
@@ -205,6 +232,14 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    doneContainer: {
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    doneText: {
+        fontSize: 18,
+        marginBottom: 10,
     },
 });
 

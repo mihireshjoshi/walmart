@@ -16,10 +16,19 @@ import Search from './components/Search';
 import BarcodeScanner from './components/BarcodeScanner';
 import { LogBox } from 'react-native';
 import CreateShoppingList from './components/CreateShoppingList';
+import RewardSplashScreen from './components/RewardSplashScreen';
+import { useEffect } from 'react';
+import { clearAsyncStorage } from './components/storageUtils'; // Import the clearAsyncStorage function
+
 const Stack = createStackNavigator();
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews']);
 
 function App() {
+  useEffect(() => {
+    // Clear AsyncStorage when the app is opened
+    clearAsyncStorage();
+  }, []);
+
   return (
     <Provider store={store}>
       <CartProvider>
@@ -35,6 +44,7 @@ function App() {
             <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
             <Stack.Screen name="QueueStatus" component={QueueStatus} />
             <Stack.Screen name="CreateShoppingList" component={CreateShoppingList} />
+            <Stack.Screen name="RewardSplashScreen" component={RewardSplashScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>

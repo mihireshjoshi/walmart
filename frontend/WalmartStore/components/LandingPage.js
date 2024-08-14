@@ -11,7 +11,7 @@ import {
   Button,
 } from "react-native";
 import { useState, useEffect } from 'react';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 
@@ -135,6 +135,27 @@ const LandingPage = () => {
   const [productName, setProductName] = useState('');
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
+  const [virtualCoins, setVirtualCoins] = useState(0);
+
+  useEffect(() => {
+    const fetchVirtualCoins = async () => {
+      try {
+        const storedCoins = await AsyncStorage.getItem("virtualCoins");
+        setVirtualCoins(parseInt(storedCoins) || 0);
+      } catch (error) {
+        console.error("Error fetching virtual coins:", error);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchVirtualCoins(); // Fetch coins when the screen is focused
+    });
+
+    fetchVirtualCoins(); // Fetch coins on initial load
+
+    return unsubscribe; // Clean up the listener on unmount
+  }, [navigation]);
+
 
   const searchProducts = async () => {
     if (productName.trim() === '') {
@@ -203,6 +224,18 @@ const LandingPage = () => {
               }}
               style={styles.iconImage}
             />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate("Rewards")}
+          >
+            <Image
+              source={{
+                uri: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png", // Coin icon
+              }}
+              style={styles.iconImage}
+            />
+            <Text style={styles.coinText}>{virtualCoins}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -327,10 +360,16 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: 15,
+    alignItems: 'center',
   },
   iconImage: {
     width: 30,
     height: 30,
+  },
+  coinText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   searchBarContainer: {
     padding: 15,

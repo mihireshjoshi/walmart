@@ -25,6 +25,8 @@ import {
 } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Import icons
+
 
 // Constants for dimensions
 const buyerIconWidth = 40;
@@ -36,225 +38,18 @@ const gridSize = 30;
 
 // Store layout with real section names
 const storeLayout = [
-  [
-    "Clothing",
-    "Clothing",
-    "Clothing",
-    "Clothing",
-    "Clothing",
-    "Clothing",
-    0,
-    "Grocery",
-    "Grocery",
-    "Grocery",
-    "Grocery",
-    "Grocery",
-    0,
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    "Electronics",
-    0,
-  ],
+  ["Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, "Grocery", "Grocery", "Grocery", "Grocery", "Grocery", 0, "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", 0],
   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [
-    "Pharmacy",
-    0,
-    "Home Decor",
-    "Home Decor",
-    "Home Decor",
-    0,
-    "Toys",
-    "Toys",
-    "Toys",
-    0,
-    "Furniture",
-    "Furniture",
-    "Furniture",
-    0,
-    "Sporting Goods",
-    "Sporting Goods",
-    "Sporting Goods",
-    0,
-    "Outdoor",
-    0,
-    "Automotive",
-    0,
-  ],
-  [
-    "Pharmacy",
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    "Outdoor",
-    0,
-    "Automotive",
-    0,
-  ],
-  [
-    "Pharmacy",
-    0,
-    "Appliances",
-    "Books",
-    0,
-    "Beauty",
-    "Cosmetics",
-    0,
-    "Bakery",
-    "Dairy",
-    0,
-    "Produce",
-    "Meat",
-    0,
-    "Household Essentials",
-    "Cleaning Supplies",
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  ],
-  [
-    "Pharmacy",
-    0,
-    "Appliances",
-    "Books",
-    0,
-    "Beauty",
-    "Cosmetics",
-    0,
-    "Bakery",
-    "Dairy",
-    0,
-    "Produce",
-    "Meat",
-    0,
-    "Household Essentials",
-    "Cleaning Supplies",
-    0,
-    "Checkout",
-    "Checkout",
-    "Checkout",
-    "Checkout",
-    0,
-  ],
-  [
-    "Pharmacy",
-    0,
-    "Appliances",
-    "Books",
-    0,
-    "Beauty",
-    "Cosmetics",
-    0,
-    "Bakery",
-    "Dairy",
-    0,
-    "Produce",
-    "Meat",
-    0,
-    "Household Essentials",
-    "Cleaning Supplies",
-    0,
-    "Checkout",
-    "Checkout",
-    "Checkout",
-    "Checkout",
-    0,
-  ],
-  [
-    "Pharmacy",
-    0,
-    "Appliances",
-    "Books",
-    0,
-    "Beauty",
-    "Cosmetics",
-    0,
-    "Bakery",
-    "Dairy",
-    0,
-    "Produce",
-    "Meat",
-    0,
-    "Household Essentials",
-    "Cleaning Supplies",
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-  ],
+  ["Pharmacy", 0, "Home Decor", "Home Decor", "Home Decor", 0, "Toys", "Toys", "Toys", 0, "Furniture", "Furniture", "Furniture", 0, "Sporting Goods", "Sporting Goods", "Sporting Goods", 0, "Outdoor", 0, "Automotive", 0],
+  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Outdoor", 0, "Automotive", 0],
+  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
+  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
+  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
+  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [
-    "Pharmacy",
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    "Entrance",
-    0,
-    "Entrance",
-    0,
-    "Entrance",
-    0,
-    0,
-    0,
-    0,
-    0,
-  ],
-  [
-    "Pharmacy",
-    "Pharmacy",
-    "Entrance",
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    "Entrance",
-    0,
-    "Entrance",
-    0,
-    "Entrance",
-    0,
-    0,
-    0,
-    0,
-    0,
-  ],
+  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
+  ["Pharmacy", "Pharmacy", "Entrance", 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
 ];
 
 // Locations for sections and features
@@ -313,7 +108,7 @@ const sectionColors = {
 };
 
 const colors = {
-  0: "white", // Walkable paths
+  0: "#E7ECEF", // Walkable paths
 };
 
 const MapView = ({ navigation, route }) => {
@@ -464,7 +259,7 @@ const MapView = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={{backgroundColor: "#E7ECEF"}}>
     <ScrollView horizontal style={styles.container}>
       <ScrollView style={styles.container}>
         <Svg
@@ -870,7 +665,7 @@ const MapView = ({ navigation, route }) => {
         <ScrollView style={styles.topPop}>
           <View style={styles.optPop}>
             <View style={styles.select}>
-              <Text>Source</Text>
+              <Text style={styles.pickTxt}>Source</Text>
               <View style={styles.picker}>
                 <Picker
                   selectedValue={Object.keys(locations).find(
@@ -884,9 +679,9 @@ const MapView = ({ navigation, route }) => {
                 </Picker>
               </View>
             </View>
-
+            <Icon name="double-arrow" size={24} color="#002E4F" />
             <View style={styles.select}>
-              <Text>Destination</Text>
+              <Text style={styles.pickTxt}>Destination</Text>
               <View style={styles.picker}>
                 <Picker
                   selectedValue={Object.keys(locations).find(
@@ -959,13 +754,14 @@ const MapView = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingHorizontal: "auto",
     zIndex: -1,
   },
 
   topPop: {
     width: windowWidth,
-    backgroundColor: "#eeeeee",
+    // backgroundColor: "#fff",
     zIndex: 1,
     elevation: 4,
     borderTopLeftRadius: 12,
@@ -973,7 +769,14 @@ const styles = StyleSheet.create({
   },
   optPop: {
     flexDirection: "row",
-    padding: 10,
+    paddingTop: 10,
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  pickTxt: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#002E4F"
   },
   select: {
     width: 160,
@@ -983,20 +786,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 8,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
   },
   picker: {
     padding: 0,
-    backgroundColor: "#CFDDEF",
+    backgroundColor: "#E6EDF2",
     borderRadius: 4,
   },
   qrButton: {
-    marginHorizontal: 14,
-    backgroundColor: "#266BBC",
+    marginHorizontal: 20,
+    backgroundColor: "#002E4F",
     paddingHorizontal: "auto",
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 12,
     elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 4,
+    elevation: 3,
   },
   qrTxt: {
     fontSize: 18,
@@ -1045,9 +858,13 @@ const styles = StyleSheet.create({
   productListContainer: {
     margin: 20,
     padding: 10,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#fff",
     borderRadius: 10,
     elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   productListTitle: {
     fontSize: 18,
@@ -1060,17 +877,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     marginVertical: 5,
-    backgroundColor: "#fff",
+    backgroundColor: "#E6EDF2",
     borderRadius: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   productListText: {
     fontSize: 16,
-    color: "#555",
+    fontWeight: "bold",
+    color: "#002E4F",
   },
 });
 

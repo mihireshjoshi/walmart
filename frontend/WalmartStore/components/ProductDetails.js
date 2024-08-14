@@ -28,7 +28,7 @@ const ProductDetails = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.detailsContainer}>
+            <ScrollView style={styles.detailsContainer}>
                 <View style={styles.mainBox}>
                     <View style={{flexDirection: "row", alignItems: "start", justifyContent: "space-between"}}>
                         <View style={{flexDirection: "column"}}>
@@ -127,23 +127,24 @@ const ProductDetails = ({ route, navigation }) => {
                         />
                     </View>
                 )}
+                <View style={styles.bottomNavBar}>
+                    <TouchableOpacity
+                        style={styles.bottomNavButton}
+                        onPress={() => navigation.navigate('ProductNavigation')}
+                    >
+                        <Text style={styles.bottomNavText}>Navigate Your Products</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.bottomNavButton}
+                        onPress={() => navigation.navigate('BarcodeScanner')}
+                    >
+                        <Text style={styles.bottomNavText}>Scan Your Products</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
-
+            
             {/* Bottom Navigation Bar */}
-            <View style={styles.bottomNavBar}>
-                <TouchableOpacity
-                    style={styles.bottomNavButton}
-                    onPress={() => navigation.navigate('ProductNavigation')}
-                >
-                    <Text style={styles.bottomNavText}>Navigate Your Products</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavButton}
-                    onPress={() => navigation.navigate('BarcodeScanner')}
-                >
-                    <Text style={styles.bottomNavText}>Scan Your Products</Text>
-                </TouchableOpacity>
-            </View>
+            
         </View>
     );
 };
@@ -151,7 +152,7 @@ const ProductDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between',
         backgroundColor: "#EEEEEE"
     },
     detailsContainer: {
@@ -270,12 +271,15 @@ const styles = StyleSheet.create({
     },
     bottomNavBar: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 15,
-        backgroundColor: '#6200ea',
+        justifyContent: 'space-between',
+        marginVertical: 12
+        // padding: 12,
     },
     bottomNavButton: {
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 22,
+        borderRadius: 8,
+        backgroundColor: "#002E4F"
     },
     bottomNavText: {
         color: '#fff',

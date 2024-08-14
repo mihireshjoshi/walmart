@@ -34,9 +34,9 @@ function App() {
       <CartProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="LandingPage">
-            <Stack.Screen name="LandingPage" component={LandingPage} />
+            <Stack.Screen name="LandingPage" component={LandingPage}  options={{ headerShown: false }}/>
             <Stack.Screen name="ProductDetails" component={ProductDetails} />
-            <Stack.Screen name="Cart" component={Cart} />
+            <Stack.Screen name="Cart" component={Cart}  options={{ headerShown: false }}/>
             <Stack.Screen name="Profile" component={ProfilePage} />
             <Stack.Screen name="MapView" component={MapView} />
             <Stack.Screen name="QRScanner" component={QRScanner} />

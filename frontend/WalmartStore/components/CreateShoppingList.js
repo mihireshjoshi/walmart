@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons'; // Import Ionicons for icons
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather'; // Import icons
 
 // Initialize Supabase client
 const supabase = createClient('https://lxtmuiyrxmtjgbpmptpd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dG11aXlyeG10amdicG1wdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM1MzI4NjEsImV4cCI6MjAzOTEwODg2MX0.US3X7N7ngm71Hq5aVRZv1MKjk1MBiZYYwyiCLFU1TAo');
@@ -80,7 +81,7 @@ const CreateShoppingList = () => {
         <View style={styles.productItem}>
             <View>
                 <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.productPrice}>{item.price} Rs</Text>
+                <Text style={styles.productPrice}>Rs. {item.price}/-</Text>
             </View>
             <TouchableOpacity
                 style={styles.addButton}
@@ -99,13 +100,16 @@ const CreateShoppingList = () => {
             </View>
             <View style={styles.iconContainer}>
                 <TouchableOpacity onPress={() => increaseQuantity(item.id)}>
-                    <Ionicons name="add-sharp" size={24} color="green" />
+                    <Icon name="plus-circle" size={24} color="#002E4F" />
+                    {/* <Ionicons name="add-sharp" size={24} color="green" /> */}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => decreaseQuantity(item.id)}>
-                    <AntDesign name="minus" size={24} color="orange" />
+                    <Icon name="minus-circle" size={24} color="#002E4F" />
+                    {/* <AntDesign name="minus" size={24} color="orange" /> */}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => removeFromShoppingList(item.id)}>
-                    <Entypo name="cross" size={24} color="red" />
+                    <Icon name="x-circle" size={24} color="#A70000" />
+                    {/* <Entypo name="cross" size={24} color="red" /> */}
                 </TouchableOpacity>
             </View>
         </View>
@@ -133,6 +137,7 @@ const CreateShoppingList = () => {
         <View style={styles.container}>
             <Text style={styles.title}>Create Your Shopping List</Text>
 
+            
             <View style={styles.searchSection}>
                 <TextInput
                     style={styles.searchInput}
@@ -147,7 +152,7 @@ const CreateShoppingList = () => {
                         Keyboard.dismiss();
                     }}
                 >
-                    <Text style={styles.clearButtonText}>X</Text>
+                    <Icon name="x" size={24} color="#002E4F"/>
                 </TouchableOpacity>
             </View>
 
@@ -178,20 +183,27 @@ const CreateShoppingList = () => {
                 </View>
             )}
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={styles.clearListButton}
-                    onPress={clearShoppingList}
-                >
-                    <Text style={styles.clearListButtonText}>Clear List</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.saveListButton}
-                    onPress={saveShoppingList}
-                >
-                    <Text style={styles.saveListButtonText}>Save List</Text>
-                </TouchableOpacity>
-            </View>
+            {shoppingList.length > 0 ? (
+                <>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={styles.clearListButton}
+                            onPress={clearShoppingList}
+                        >
+                            <Text style={styles.clearListButtonText}>Clear List</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.saveListButton}
+                            onPress={saveShoppingList}
+                        >
+                            <Text style={styles.saveListButtonText}>Save List</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            ) : (
+                <></>
+            )}
+            
         </View>
     );
 };
@@ -200,7 +212,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#E7ECEF',
     },
     title: {
         fontSize: 24,
@@ -209,17 +221,32 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     searchSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
+        // flexDirection: 'row',
+        // alignItems: 'center',
+        // marginBottom: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        borderRadius: 24,
+        // borderWidth: 8,
+        // borderColor: "#ddd",
+        backgroundColor: "#fff",
+        paddingHorizontal: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+        // marginVertical: 10,
+        // marginTop: 10,
+        // marginHorizontal: 10,
+        marginBottom: 8,
+        paddingRight: 20
     },
     searchInput: {
         flex: 1,
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        paddingHorizontal: 8,
-        marginRight: 10,
+        height: 50,
+        fontSize: 16,
+        paddingHorizontal: 10,
     },
     clearButton: {
         padding: 5,
@@ -233,7 +260,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     productList: {
-        maxHeight: 200,
+        maxHeight: 400,
         marginBottom: 20,
     },
     productListContainer: {
@@ -242,23 +269,30 @@ const styles = StyleSheet.create({
     productItem: {
         padding: 15,
         backgroundColor: '#fff',
-        borderRadius: 8,
+        borderRadius: 12,
         marginBottom: 10,
-        borderWidth: 1,
-        borderColor: '#ccc',
+        // borderWidth: 1,
+        // borderColor: '#ccc',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+        // alignItems: 'center',
     },
     addButton: {
-        backgroundColor: '#6200ea',
-        paddingVertical: 8,
+        backgroundColor: '#002E4F',
+        paddingVertical: 10,
         paddingHorizontal: 12,
         borderRadius: 8,
+        justifyContent: "center"
     },
     addButtonText: {
         color: '#fff',
         fontSize: 14,
+        
     },
     productName: {
         fontSize: 16,
@@ -266,7 +300,7 @@ const styles = StyleSheet.create({
     },
     productPrice: {
         fontSize: 14,
-        color: 'green',
+        color: '#256290',
     },
     listTitle: {
         fontSize: 20,
@@ -297,6 +331,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 4
     },
     productQuantity: {
         fontSize: 14,
@@ -319,25 +354,28 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     clearListButton: {
-        backgroundColor: 'red',
-        paddingVertical: 16, // Increased padding for larger buttons
-        paddingHorizontal: 24,
+        // backgroundColor: 'red',
+        paddingVertical: 8, // Increased padding for larger buttons
+        paddingHorizontal: 16,
         borderRadius: 8,
         marginRight: 10,
+        borderWidth: 2,
+        borderColor: "#A70000"
     },
     clearListButtonText: {
-        color: '#fff',
-        fontSize: 18, // Increased font size
+        color: '#A70000',
+        fontSize: 14, // Increased font size
+        fontWeight: "bold"
     },
     saveListButton: {
-        backgroundColor: 'green',
-        paddingVertical: 16, // Increased padding for larger buttons
-        paddingHorizontal: 24,
+        backgroundColor: '#002E4F',
+        paddingVertical: 10, // Increased padding for larger buttons
+        paddingHorizontal: 16,
         borderRadius: 8,
     },
     saveListButtonText: {
         color: '#fff',
-        fontSize: 18, // Increased font size
+        fontSize: 14, // Increased font size
     },
 });
 

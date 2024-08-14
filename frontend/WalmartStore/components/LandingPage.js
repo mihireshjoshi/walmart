@@ -10,7 +10,7 @@ import {
   TextInput,
   Button,
 } from "react-native";
-import CustomHeader from '../components/CustomHeader';
+import CustomHeader from "../components/CustomHeader";
 
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
@@ -36,6 +36,7 @@ const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [virtualCoins, setVirtualCoins] = useState(0);
+  const [listname, setListName] = useState("Create Your Shopping List");
 
   useEffect(() => {
     const fetchVirtualCoins = async () => {
@@ -162,6 +163,16 @@ const LandingPage = () => {
   );
 
   useEffect(() => {
+    const listkival = async () => {
+      const listval = await AsyncStorage.getItem("List_sections");
+      if (listval) {
+        setListName("View Your List");
+      }
+    };
+    listkival();
+  });
+
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       searchProducts();
     }, 500); // Debounce delay of 500ms
@@ -177,7 +188,7 @@ const LandingPage = () => {
   return (
     <View style={styles.container}>
       {/* Top Navigation Bar */}
-      
+
       <View style={stylesnav.topNavBar}>
         <Text style={stylesnav.pageTitle}>Hi Mohammed!</Text>
         <View style={stylesnav.iconContainer}>
@@ -192,11 +203,11 @@ const LandingPage = () => {
               style={stylesnav.iconImage}
             /> */}
             <Feather
-            name="shopping-cart"
-            size={24}
-            color="black"
-            style={stylesmainfeature.icon}
-          />
+              name="shopping-cart"
+              size={24}
+              color="black"
+              style={stylesmainfeature.icon}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={stylesnav.iconButton}
@@ -307,7 +318,7 @@ const LandingPage = () => {
             style={stylesmainfeature.icon}
           />
           <Text style={stylesmainfeature.createShoppingListText}>
-            Create Your Shopping List
+            {listname}
           </Text>
         </TouchableOpacity>
       </View>
@@ -501,7 +512,7 @@ const stylesnav = StyleSheet.create({
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    marginTop:25,
+    marginTop: 25,
   },
   pageTitle: {
     fontSize: 18,
@@ -731,7 +742,6 @@ const style = StyleSheet.create({
   },
 });
 
-
 // const styles2 = StyleSheet.create({
 //   scrollView: {
 //     flex: 1, // Ensure ScrollView takes full available space
@@ -830,6 +840,5 @@ const styles2 = StyleSheet.create({
     color: "#006400", // Adjusted text color for contrast
   },
 });
-
 
 export default LandingPage;

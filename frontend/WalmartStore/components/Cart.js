@@ -1,6 +1,6 @@
 
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, Alert, StyleSheet, SectionList, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, SectionList, TouchableOpacity, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
@@ -63,41 +63,53 @@ const Cart = () => {
     const renderCartItem = ({ item }) => (
         <View style={styles.cartItem}>
             <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemDetails}>Quantity: {item.quantity}</Text>
-            <Text style={styles.itemDetails}>Price: Rs {item.price.toFixed(2)}/-</Text>
-            <Text style={styles.itemDetails}>Subtotal: Rs { (item.price * item.quantity).toFixed(2) }/-</Text>
+            <View style={styles.qtyCost}>
+                <Text style={styles.itemDetails}>Qty: <Text style={styles.valPrice}>{item.quantity}</Text></Text>
+                <Text style={styles.valPriceBase}>Rs {item.price.toFixed(2)}/-</Text>
+            </View>
+            <View style={styles.line}/>
+            <View style={styles.qtyCost}>
+                <Text style={styles.itemDetailsBoss}>Subtotal:</Text>
+                <Text style={styles.valPrice}>Rs { (item.price * item.quantity).toFixed(2) }/-</Text>
+            </View>
         </View>
     );
+
 
     return (
         <View style={styles.container}>
             <CustomHeader title="Your Cart" />
             {cart && cart.length > 0 ? (
-                <SectionList
-                    sections={[
-                        { title: 'Cart Items', data: cart },
-                        { title: 'Footer', data: [{ key: 'footer' }] }
-                    ]}
-                    renderItem={({ item, section }) =>
-                        section.title === 'Cart Items' ? renderCartItem({ item }) : null
-                    }
-                    renderSectionFooter={({ section }) =>
-                        section.title === 'Footer' ? (
-                            <View style={styles.footer}>
-                                <Text style={styles.totalAmount}>Total Amount: Rs {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}/-</Text>
+                <View>
+                    <View style={styles.itemsBox}>
+                        <FlatList
+                            data={cart}
+                            keyExtractor={(item, index) => index.toString()}  // Ideally, use a unique key like item.id
+                            renderItem={renderCartItem}
+                            // ListFooterComponent={renderFooter}  // Renders the footer at the bottom
+                            contentContainerStyle={{ flexGrow: 1 }}
+                        />
+                    </View>
+                    <View style={styles.footer}>
+                        <View>
+                            <Text style={styles.totalAmount}>Total Amount:</Text>
+                            <Text style={styles.finalePrice}>Rs {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}/-</Text>
+                        </View>
+                        <View style={styles.payUse}>
+                            <Text style={{fontSize: 14, fontWeight: "600"}}>Pay using</Text>
+                            <View style={styles.payOps}>
                                 <TouchableOpacity style={styles.button} onPress={handleStripeCheckout}>
-                                    <Text style={styles.buttonText}>Checkout using Stripe</Text>
+                                    <Text style={styles.buttonText}>Stripe</Text>
                                 </TouchableOpacity>
-                                <View style={styles.spacer} />
                                 <TouchableOpacity style={styles.button} onPress={handleCounterCheckout}>
-                                    <Text style={styles.buttonText}>Checkout using Counter</Text>
+                                    <Text style={styles.buttonText}>Counter</Text>
                                 </TouchableOpacity>
                             </View>
-                        ) : null
-                    }
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={{ flexGrow: 1 }}
-                />
+                        </View>
+                    </View>
+                </View>
+                
+                
             ) : (
                 <View style={styles.emptyCartContainer}>
                     <Text style={styles.emptyCartText}>Your cart is empty.</Text>
@@ -111,18 +123,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#EEEEEE',
     },
     cartItem: {
-        padding: 15,
-        marginVertical: 10,
+        padding: 8,
+        marginVertical: 4,
         borderRadius: 10,
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
+        backgroundColor: '#E6EDF2',
+        // shadowColor: '#000',
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.1,
+        // shadowRadius: 5,
+        // elevation: 3,
     },
     itemName: {
         fontSize: 18,
@@ -134,14 +146,18 @@ const styles = StyleSheet.create({
         marginTop: 5,
         color: '#666',
     },
+    itemDetailsBoss: {
+        fontSize: 16,
+        marginTop: 5,
+        color: '#666',
+    },
     totalAmount: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
-        marginVertical: 15,
         color: '#000',
     },
     footer: {
-        padding: 20,
+        padding: 10,
         backgroundColor: '#fff',
         borderRadius: 10,
         shadowColor: '#000',
@@ -151,9 +167,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         marginVertical: 10,
     },
-    spacer: {
-        height: 10,
-    },
+    
     emptyCartContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -164,19 +178,66 @@ const styles = StyleSheet.create({
         color: '#555',
     },
     button: {
-        borderRadius: 25,
+        borderRadius: 4,
         paddingVertical: 10,
-        paddingHorizontal: 20,
-        backgroundColor: '#6A0D91',
+        paddingHorizontal: 60,
+        backgroundColor: '#002E4F',
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 10,
+        marginTop: 16,
+        marginBottom: 4
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
     },
+    qtyCost: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
+    valPriceBase: {
+        fontWeight: "bold",
+        color: "#6688A1"
+    },
+    valPrice: {
+        fontWeight: "bold",
+        color: "#002E4F",
+        fontSize: 16
+    },
+    line: {
+        height: 0.4,
+        backgroundColor: "#002E4F",
+        width: "100%",
+        marginTop: 6
+    },
+    itemsBox: {
+        backgroundColor: "white",
+        padding: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+        borderRadius: 12,
+    },
+    finalePrice: {
+        fontSize: 36,
+        fontWeight: "900",
+        textAlign: "center",
+        color: "#002E4F",
+        marginVertical: 12
+    },
+    payUse: {
+        padding: 6,
+        backgroundColor: "#E6EDF2",
+        borderRadius: 6
+    },
+    payOps: {
+        flexDirection: "row",
+        justifyContent: "space-evenly"
+    }
 });
 
 export default Cart;

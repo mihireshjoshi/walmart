@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         marginTop: 20,
-        backgroundColor: '#4B0082', // Background color
+        marginBottom: 20,
+        backgroundColor: '#002E4F', // Background color
         borderBottomWidth: 1,
         borderBottomColor: '#DCDCDC', // Bottom border color
         borderRadius: 10, // Rounded corners

@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#EEEEEE',
+        backgroundColor: '#E7ECEF',
     },
     cartItem: {
         padding: 8,

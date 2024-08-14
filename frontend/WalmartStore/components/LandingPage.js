@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
+import Icon from 'react-native-vector-icons/Feather'; // Import icons
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -161,8 +162,10 @@ const LandingPage = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles2.card} onPress={() => handlePress(item)}>
-      <Text style={styles2.cardTitle}>{item.name}</Text>
-      <Text style={styles2.cardDescription}>{item.description}</Text>
+      <View style={{flexDirection: "column"}}>
+        <Text style={styles2.cardTitle}>{item.name}</Text>
+        <Text style={styles2.cardDescription}>{item.description}</Text>
+      </View>
       <Text style={styles2.cardPrice}>{item.price}/- Rs</Text>
     </TouchableOpacity>
   );
@@ -195,7 +198,7 @@ const LandingPage = () => {
       {/* Top Navigation Bar */}
 
       <View style={stylesnav.topNavBar}>
-        <Text style={stylesnav.pageTitle}>Hi Mohammed!</Text>
+        <Text style={stylesnav.pageTitle}>Cartsy</Text>
         <View style={stylesnav.iconContainer}>
           <TouchableOpacity
             style={stylesnav.iconButton}
@@ -256,7 +259,8 @@ const LandingPage = () => {
               Keyboard.dismiss(); // Close the keyboard
             }}
           >
-            <Text style={style.clearButtonText}>X</Text>
+            <Icon name="x" size={24} color="#002E4F"/>
+            {/* <Text style={style.clearButtonText}>X</Text> */}
           </TouchableOpacity>
         </View>
         {error && <Text style={style.searchError}>Error: {error}</Text>}
@@ -268,10 +272,10 @@ const LandingPage = () => {
               style={style.searchCard}
               onPress={() => handlePress(item)}
             >
-              <Text style={style.searchCardTitle}>{item.name}</Text>
-              <Text style={style.searchCardDescription}>
-                {item.description}
-              </Text>
+              <View>
+                <Text style={style.searchCardTitle}>{item.name}</Text>
+                <Text style={style.searchCardDescription}>{item.description}</Text>
+              </View>
               <Text style={style.searchCardPrice}>{item.price}/- Rs</Text>
             </TouchableOpacity>
           )}
@@ -289,7 +293,7 @@ const LandingPage = () => {
           <Feather
             name="navigation"
             size={24}
-            color="black"
+            color="#002E4F"
             style={stylesmainfeature.icon}
           />
           <Text style={stylesmainfeature.featureText}>
@@ -303,7 +307,7 @@ const LandingPage = () => {
           <AntDesign
             name="qrcode"
             size={24}
-            color="black"
+            color="#002E4F"
             style={stylesmainfeature.icon}
           />
 
@@ -326,7 +330,7 @@ const LandingPage = () => {
           <Feather
             name="shopping-cart"
             size={24}
-            color="black"
+            color="white"
             style={stylesmainfeature.icon}
           />
           <Text style={stylesmainfeature.createShoppingListText}>
@@ -334,10 +338,14 @@ const LandingPage = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
       {/* Extra Displayed Products : Shoes, Food, Snacks */}
       <ScrollView style={styles2.scrollView}>
         <View style={styles2.container}>
-          <Text style={styles2.title}>Shoes</Text>
+          <View style={{flexDirection: "row", gap: 6}}>
+            <Text style={styles2.title}>Shoes</Text>
+            {/* <Icon name="fast-food-outline" size={24} color="#002E4F" /> */}
+          </View>
           {error && <Text style={styles2.errorText}>{error}</Text>}
           <FlatList
             data={shoes}
@@ -350,7 +358,10 @@ const LandingPage = () => {
         </View>
 
         <View style={styles2.container}>
-          <Text style={styles2.title}>Food</Text>
+          <View style={{flexDirection: "row", gap: 6}}>
+            <Text style={styles2.title}>Food</Text>
+            {/* <Icon name="fast-food-outline" size={24} color="#002E4F" /> */}
+          </View>
           {error && <Text style={styles2.errorText}>{error}</Text>}
           <FlatList
             data={food}
@@ -457,10 +468,12 @@ const stylesmainfeature = StyleSheet.create({
   mainFeaturesContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 16,
+    marginTop: 8,
+    // marginVertical: 16,
+    // marginHorizontal: 8
   },
   featureButton: {
-    backgroundColor: "#E6E6FA", // Light purple background
+    backgroundColor: "#fff", // Light purple background
     borderRadius: 10,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -471,24 +484,30 @@ const stylesmainfeature = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     flex: 1, // Ensures buttons take equal width
-    marginHorizontal: 8, // Adds gap between the buttons
+    marginHorizontal: 10, // Adds gap between the buttons
     flexDirection: "row", // Aligns icon and text horizontally
     alignItems: "center", // Centers icon and text vertically
   },
   featureText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#4B0082", // Darker purple text
+    color: "#002E4F", // Darker purple text
     marginLeft: 8, // Space between icon and text
   },
   createShoppingListContainer: {
     marginTop: 16,
+    marginBottom: 10,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center", // Centers button horizontally
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 4,
+    elevation: 5,
   },
   createShoppingListButton: {
-    backgroundColor: "#E6E6FA", // Light purple background
+    backgroundColor: "#002E4F", // Light purple background
     borderRadius: 10,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -499,14 +518,14 @@ const stylesmainfeature = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     flex: 1, // Ensures button takes the same width as the upper buttons
-    marginHorizontal: 8, // Adds gap on both sides
+    marginHorizontal: 10, // Adds gap on both sides
     flexDirection: "row", // Aligns icon and text horizontally
     alignItems: "center", // Centers icon and text vertically
   },
   createShoppingListText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#4B0082", // Darker purple text
+    color: "#fff", // Darker purple text
     marginLeft: 8, // Space between icon and text
   },
   icon: {
@@ -527,9 +546,9 @@ const stylesnav = StyleSheet.create({
     marginTop: 25,
   },
   pageTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#002E4F",
   },
   iconContainer: {
     flexDirection: "row",
@@ -569,7 +588,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#E7ECEF",
   },
   topNavBar: {
     flexDirection: "row",
@@ -698,12 +717,20 @@ const style = StyleSheet.create({
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    borderWidth: 8,
-    borderColor: "#ddd",
-    backgroundColor: "#f9f9f9",
+    borderRadius: 24,
+    // borderWidth: 8,
+    // borderColor: "#ddd",
+    backgroundColor: "#fff",
     paddingHorizontal: 10,
-    marginBottom: 0, // Add margin below the search bar
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    // marginVertical: 10,
+    marginTop: 10,
+    marginHorizontal: 10,
+    paddingRight: 20
   },
   searchInput: {
     flex: 1,
@@ -729,11 +756,14 @@ const style = StyleSheet.create({
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
-    marginBottom: 10,
+    marginVertical: 4,
+    marginHorizontal: 8,
     padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   searchCardTitle: {
     fontSize: 18,
@@ -747,7 +777,8 @@ const style = StyleSheet.create({
   },
   searchCardPrice: {
     fontSize: 16,
-    color: "#28a745",
+    color: "#002E4F",
+    fontWeight: "bold"
   },
   searchContentContainer: {
     paddingBottom: 20,
@@ -808,8 +839,16 @@ const styles2 = StyleSheet.create({
     flex: 1, // Ensure ScrollView takes full available space
   },
   container: {
-    marginVertical: 15,
-    paddingHorizontal: 10,
+    marginVertical: 4,
+    marginHorizontal: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   title: {
     fontSize: 22,
@@ -824,32 +863,35 @@ const styles2 = StyleSheet.create({
     paddingHorizontal: 5,
   },
   card: {
-    backgroundColor: "#E6E6FA", // Updated background color
+    backgroundColor: "#E6EDF2", // Updated background color
     borderRadius: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
     marginHorizontal: 5,
     padding: 10,
     width: 150,
-    height: 120,
-    justifyContent: "center",
+    // height: 120,
+    justifyContent: "space-between",
+    gap: 12,
+    marginVertical: 8
   },
   cardTitle: {
     fontSize: 15,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#4B0082", // Adjusted text color for contrast
+    color: "#002E4F", // Adjusted text color for contrast
   },
   cardDescription: {
     fontSize: 10,
-    color: "#000080", // Adjusted text color for contrast
+    color: "#6688A1", // Adjusted text color for contrast
   },
   cardPrice: {
     fontSize: 12,
-    color: "#006400", // Adjusted text color for contrast
+    fontWeight: "bold",
+    color: "#002E4F", // Adjusted text color for contrast
   },
 });
 

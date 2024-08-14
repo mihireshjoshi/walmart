@@ -10,129 +10,31 @@ import {
   TextInput,
   Button,
 } from "react-native";
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient } from '@supabase/supabase-js';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+
+
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Feather from '@expo/vector-icons/Feather';
+
+
+
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createClient } from "@supabase/supabase-js";
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
 
 // Initialize Supabase client
-const supabase = createClient('https://lxtmuiyrxmtjgbpmptpd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dG11aXlyeG10amdicG1wdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM1MzI4NjEsImV4cCI6MjAzOTEwODg2MX0.US3X7N7ngm71Hq5aVRZv1MKjk1MBiZYYwyiCLFU1TAo');
+const supabase = createClient(
+  "https://lxtmuiyrxmtjgbpmptpd.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dG11aXlyeG10amdicG1wdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM1MzI4NjEsImV4cCI6MjAzOTEwODg2MX0.US3X7N7ngm71Hq5aVRZv1MKjk1MBiZYYwyiCLFU1TAo"
+);
 
-
-import { Keyboard } from 'react-native';
-
-
+import { Keyboard } from "react-native";
 
 const LandingPage = () => {
-
-  const sections = [
-    {
-      id: "1",
-      title: "Clothing",
-      products: [
-        {
-          id: "1",
-          name: "T-Shirt",
-          price: "₹300",
-          description: "Comfortable cotton t-shirt",
-        },
-        {
-          id: "2",
-          name: "Jeans",
-          price: "₹1200",
-          description: "Stylish denim jeans",
-        },
-        {
-          id: "3",
-          name: "Jacket",
-          price: "₹2500",
-          description: "Warm winter jacket",
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "Electronics",
-      products: [
-        {
-          id: "4",
-          name: "Smartphone",
-          price: "₹15000",
-          description: "Latest Android smartphone",
-        },
-        {
-          id: "5",
-          name: "Laptop",
-          price: "₹50000",
-          description: "High-performance laptop",
-        },
-        {
-          id: "6",
-          name: "Headphones",
-          price: "₹2000",
-          description: "Noise-cancelling headphones",
-        },
-      ],
-    },
-    {
-      id: "3",
-      title: "Cooking",
-      products: [
-        {
-          id: "7",
-          name: "Non-stick Pan",
-          price: "₹500",
-          description: "Durable non-stick pan",
-        },
-        {
-          id: "8",
-          name: "Spatula Set",
-          price: "₹150",
-          description: "Heat-resistant spatulas",
-        },
-      ],
-    },
-    {
-      id: "4",
-      title: "Daily Essentials",
-      products: [
-        {
-          id: "9",
-          name: "Toothpaste",
-          price: "₹90",
-          description: "Teeth whitening toothpaste",
-        },
-        {
-          id: "10",
-          name: "Shampoo",
-          price: "₹150",
-          description: "Anti-dandruff shampoo",
-        },
-        {
-          id: "11",
-          name: "Soap",
-          price: "₹30",
-          description: "Moisturizing bath soap",
-        },
-      ],
-    },
-  ];
-
-  const renderProductItem = ({ item }) => (
-    <View style={styles.productCard}>
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>{item.price}</Text>
-      <Text style={styles.productDescription}>{item.description}</Text>
-    </View>
-  );
-
-
-
-
   const navigation = useNavigation(); // Use navigation hook
 
   // Search Funtion
-  const [productName, setProductName] = useState('');
+  const [productName, setProductName] = useState("");
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [virtualCoins, setVirtualCoins] = useState(0);
@@ -147,7 +49,7 @@ const LandingPage = () => {
       }
     };
 
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       fetchVirtualCoins(); // Fetch coins when the screen is focused
     });
 
@@ -156,18 +58,17 @@ const LandingPage = () => {
     return unsubscribe; // Clean up the listener on unmount
   }, [navigation]);
 
-
   const searchProducts = async () => {
-    if (productName.trim() === '') {
+    if (productName.trim() === "") {
       setProducts([]);
       return; // Skip search if the input is empty
     }
 
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .select()
-        .ilike('name', `%${productName}%`); // Use ilike for case-insensitive search
+        .ilike("name", `%${productName}%`); // Use ilike for case-insensitive search
 
       if (error) {
         throw error;
@@ -181,6 +82,89 @@ const LandingPage = () => {
     }
   };
 
+  const [shoes, setshoes] = useState([]);
+
+  useEffect(() => {
+    const fetchshoes = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select()
+          .eq("section", "Shoes"); // Use ilike for case-insensitive search
+
+        if (error) {
+          throw error;
+        }
+
+        setshoes(data);
+        setError(null);
+      } catch (error) {
+        setError(error.message);
+        setshoes([]);
+      }
+    };
+
+    fetchshoes();
+  }, []);
+
+  const [food, setfood] = useState([]);
+  useEffect(() => {
+    const fetchfood = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select()
+          .eq("section", "Drinks"); // Use ilike for case-insensitive search
+
+        if (error) {
+          throw error;
+        }
+
+        setfood(data);
+        setError(null);
+      } catch (error) {
+        setError(error.message);
+        setfood([]);
+      }
+    };
+
+    fetchfood();
+  }, []);
+
+  const [snacks, setsnacks] = useState([]);
+  useEffect(() => {
+    const fetchsnacks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select()
+          .eq("section", "Snacks"); // Use ilike for case-insensitive search
+
+        if (error) {
+          throw error;
+        }
+
+        setsnacks(data);
+        setError(null);
+      } catch (error) {
+        setError(error.message);
+        setsnacks([]);
+      }
+    };
+
+    fetchsnacks();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles2.card} onPress={() => handlePress(item)}>
+      <Text style={styles2.cardTitle}>{item.name}</Text>
+      <Text style={styles2.cardDescription}>{item.description}</Text>
+      <Text style={styles2.cardPrice}>{item.price}/- Rs</Text>
+    </TouchableOpacity>
+  );
+  
+
+
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       searchProducts();
@@ -191,153 +175,356 @@ const LandingPage = () => {
 
   const handlePress = (product) => {
     // Navigate to ProductDetails page and pass product data
-    navigation.navigate('ProductDetails', { product });
+    navigation.navigate("ProductDetails", { product });
   };
-
-
-
 
   return (
     <View style={styles.container}>
       {/* Top Navigation Bar */}
-      <View style={styles.topNavBar}>
-        <Text style={styles.pageTitle}>Hi Mohammed!</Text>
-        <View style={styles.iconContainer}>
+
+      <View style={stylesnav.topNavBar}>
+        <Text style={stylesnav.pageTitle}>Hi Mohammed!</Text>
+        <View style={stylesnav.iconContainer}>
           <TouchableOpacity
-            style={styles.iconButton}
+            style={stylesnav.iconButton}
             onPress={() => navigation.navigate("Cart")}
           >
             <Image
               source={{
                 uri: "https://cdn-icons-png.flaticon.com/512/1170/1170576.png",
               }}
-              style={styles.iconImage}
+              style={stylesnav.iconImage}
             />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.iconButton}
+            style={stylesnav.iconButton}
             onPress={() => navigation.navigate("Profile")}
           >
             <Image
               source={{
                 uri: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
               }}
-              style={styles.iconImage}
+              style={stylesnav.iconImage}
             />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.iconButton}
+            style={stylesnav.iconButton}
             onPress={() => navigation.navigate("Rewards")}
           >
             <Image
               source={{
-                uri: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png", // Coin icon
+                uri: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
               }}
-              style={styles.iconImage}
+              style={stylesnav.iconImage}
             />
-            <Text style={styles.coinText}>{virtualCoins}</Text>
+            <Text style={stylesnav.coinText}>{virtualCoins}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Section */}
-      <View style={style.searchSection}>
-        <View style={style.searchBarContainer}>
-          <TextInput
-            style={style.searchInput}
-            value={productName}
-            onChangeText={(text) => setProductName(text)}
-            placeholder="Enter product name"
-          />
-          <TouchableOpacity
-            style={style.clearButton}
-            onPress={() => {
-              setProductName(''); // Clear the text input
-              Keyboard.dismiss(); // Close the keyboard
-            }}
-          >
-            <Text style={style.clearButtonText}>X</Text>
-          </TouchableOpacity>
-        </View>
-        {error && <Text style={style.searchError}>Error: {error}</Text>}
+      <View style={styles.searchSection}>
+  <View style={style.searchBarContainer}>
+    <TextInput
+      style={style.searchInput}
+      value={productName}
+      onChangeText={(text) => setProductName(text)}
+      placeholder="Enter product name"
+    />
+    <TouchableOpacity
+      style={style.clearButton}
+      onPress={() => {
+        setProductName(""); // Clear the text input
+        Keyboard.dismiss(); // Close the keyboard
+      }}
+    >
+      <Text style={style.clearButtonText}>X</Text>
+    </TouchableOpacity>
+  </View>
+  {error && <Text style={style.searchError}>Error: {error}</Text>}
+  <FlatList
+    data={products}
+    keyExtractor={(item, index) => index.toString()}
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        style={style.searchCard}
+        onPress={() => handlePress(item)}
+      >
+        <Text style={style.searchCardTitle}>{item.name}</Text>
+        <Text style={style.searchCardDescription}>
+          {item.description}
+        </Text>
+        <Text style={style.searchCardPrice}>{item.price}/- Rs</Text>
+      </TouchableOpacity>
+    )}
+    contentContainerStyle={style.searchContentContainer}
+  />
+</View>
+
+      {/* Main Features */}
+
+      <View style={stylesmainfeature.mainFeaturesContainer}>
+      <TouchableOpacity
+        style={stylesmainfeature.featureButton}
+        onPress={() => navigation.navigate("MapView")}
+      >
+        <AntDesign name="qrcode" size={24} color="black" style={stylesmainfeature.icon} />
+        <Text style={stylesmainfeature.featureText}>
+          Navigate Your Products
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={stylesmainfeature.featureButton}
+        onPress={() => navigation.navigate("BarcodeScanner")}
+      >
+        <Feather name="navigation" size={24} color="black" style={stylesmainfeature.icon} />
+        <Text style={stylesmainfeature.featureText}>Scan Your Products</Text>
+      </TouchableOpacity>
+    </View>
+
+    <View style={stylesmainfeature.createShoppingListContainer}>
+      <TouchableOpacity
+        style={stylesmainfeature.createShoppingListButton}
+        onPress={() => navigation.navigate("CreateShoppingList")}
+      >
+        <Feather name="shopping-cart" size={24} color="black" style={stylesmainfeature.icon} />
+        <Text style={stylesmainfeature.createShoppingListText}>
+          Create Your Shopping List
+        </Text>
+      </TouchableOpacity>
+    </View>
+{/* Extra Displayed Products : Shoes, Food, Snacks */}
+<ScrollView style={styles2.scrollView}>
+      <View style={styles2.container}>
+        <Text style={styles2.title}>Shoes</Text>
+        {error && <Text style={styles2.errorText}>{error}</Text>}
         <FlatList
-          data={products}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={style.searchCard} onPress={() => handlePress(item)}>
-              <Text style={style.searchCardTitle}>{item.name}</Text>
-              <Text style={style.searchCardDescription}>{item.description}</Text>
-              <Text style={style.searchCardPrice}>{item.price}/- Rs</Text>
-            </TouchableOpacity>
-          )}
-          contentContainerStyle={style.searchContentContainer}
+          data={shoes}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles2.listContainer}
         />
       </View>
 
-
-      {/* Main Features */}
-      <View style={styles.mainFeaturesContainer}>
-        <TouchableOpacity
-          style={styles.featureButton}
-          onPress={() => navigation.navigate("MapView")}
-        >
-          <Text style={styles.featureText}>Navigate Your Products</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.featureButton}
-          onPress={() => navigation.navigate("BarcodeScanner")}
-        >
-          <Text style={styles.featureText}>Scan Your Products</Text>
-        </TouchableOpacity>
+      <View style={styles2.container}>
+        <Text style={styles2.title}>Food</Text>
+        {error && <Text style={styles2.errorText}>{error}</Text>}
+        <FlatList
+          data={food}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles2.listContainer}
+        />
       </View>
 
-      <View style={styles.createShoppingListContainer}>
-        <TouchableOpacity
-          style={styles.createShoppingListButton}
-          onPress={() => navigation.navigate("CreateShoppingList")}
-        >
-          <Text style={styles.createShoppingListText}>Create Your Shopping List</Text>
-        </TouchableOpacity>
+      <View style={styles2.container}>
+        <Text style={styles2.title}>Snacks</Text>
+        {error && <Text style={styles2.errorText}>{error}</Text>}
+        <FlatList
+          data={snacks}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles2.listContainer}
+          onPress={() => handlePress(item)}
+        />
       </View>
-
-      {/* Sections */}
-      <ScrollView style={styles.content}>
-        {sections.map((section) => (
-          <View key={section.id} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <FlatList
-              data={section.products}
-              keyExtractor={(item) => item.id}
-              renderItem={renderProductItem}
-              horizontal={true} // Horizontal scroll
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalScroll}
-            />
-          </View>
-        ))}
-      </ScrollView>
+    </ScrollView>
 
       {/* Bottom Navigation Bar */}
     </View>
   );
 };
 
+const stylesearch = StyleSheet.create({
+  searchSection: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+    position: 'relative', // Positioning context for absolute positioning of search results
+    marginTop: 10, // Space below the top navigation bar
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+  },
+  clearButton: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    fontSize: 16,
+    color: '#888',
+  },
+  searchError: {
+    color: 'red',
+    marginTop: 8,
+  },
+  searchCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 12,
+    marginVertical: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    position: 'absolute', // Ensure the cards overlap other components
+    left: 16, // Adjust to match the left padding of the search section
+    right: 16, // Adjust to match the right padding of the search section
+  },
+  searchCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  searchCardDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginVertical: 4,
+  },
+  searchCardPrice: {
+    fontSize: 16,
+    color: '#27ae60',
+  },
+  searchContentContainer: {
+    paddingBottom: 20,
+  },
+});
+
+
+const stylesmainfeature = StyleSheet.create({
+  mainFeaturesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 16,
+  },
+  featureButton: {
+    backgroundColor: '#E6E6FA', // Light purple background
+    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    flex: 1, // Ensures buttons take equal width
+    marginHorizontal: 8, // Adds gap between the buttons
+    flexDirection: 'row', // Aligns icon and text horizontally
+    alignItems: 'center', // Centers icon and text vertically
+  },
+  featureText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4B0082', // Darker purple text
+    marginLeft: 8, // Space between icon and text
+  },
+  createShoppingListContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center', // Centers button horizontally
+  },
+  createShoppingListButton: {
+    backgroundColor: '#E6E6FA', // Light purple background
+    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    flex: 1, // Ensures button takes the same width as the upper buttons
+    marginHorizontal: 8, // Adds gap on both sides
+    flexDirection: 'row', // Aligns icon and text horizontally
+    alignItems: 'center', // Centers icon and text vertically
+  },
+  createShoppingListText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4B0082', // Darker purple text
+    marginLeft: 8, // Space between icon and text
+  },
+  icon: {
+    marginRight: 8, // Space between icon and text
+  },
+});
+
+const stylesnav = StyleSheet.create({
+  topNavBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  pageTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    marginHorizontal: 10,
+    alignItems: "center",
+  },
+  iconImage: {
+    width: 24,
+    height: 24,
+  },
+  coinText: {
+    fontSize: 14,
+    color: "#FFD700",
+    marginTop: 4,
+  },
+});
+
 const styles = StyleSheet.create({
   createShoppingListContainer: {
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createShoppingListButton: {
-    backgroundColor: '#6200ea',
+    backgroundColor: "#6200ea",
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createShoppingListText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   container: {
     flex: 1,
@@ -360,16 +547,16 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   iconImage: {
     width: 30,
     height: 30,
   },
   coinText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   searchBarContainer: {
     padding: 15,
@@ -452,145 +639,126 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
   },
-
 });
 
-
-
 const style = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  topNavBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
-    backgroundColor: "#6200ea",
-  },
-  pageTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  iconContainer: {
-    flexDirection: "row",
-  },
-  iconButton: {
-    marginLeft: 15,
-  },
-  iconImage: {
-    width: 30,
-    height: 30,
-  },
   searchSection: {
-    top: 20, // Adjust as needed
+    position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#fff',
+    zIndex: 10,
+    backgroundColor: 'white',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    height: '100%', // Ensure it takes full height if needed
   },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 8,
+    borderColor: '#ddd',
+    backgroundColor: '#f9f9f9',
+    paddingHorizontal: 10,
+    marginBottom: 0, // Add margin below the search bar
   },
   searchInput: {
     flex: 1,
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginRight: 10, // Space between input and clear button
-    paddingHorizontal: 8,
+    height: 50,
+    fontSize: 16,
+    paddingHorizontal: 10,
   },
   clearButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 5,
   },
   clearButtonText: {
     fontSize: 18,
-    color: 'grey', // Or any color of your choice
+    color: '#007bff',
   },
   searchError: {
     color: 'red',
-    marginBottom: 10,
+    marginTop: 10,
   },
   searchCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
     borderRadius: 8,
-    padding: 15,
-    marginVertical: 10,
-    elevation: 3, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 10,
+    padding: 15,
   },
   searchCardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 5,
   },
   searchCardDescription: {
-    fontSize: 16,
-    marginVertical: 5,
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
   },
   searchCardPrice: {
     fontSize: 16,
-    color: 'green',
+    color: '#28a745',
   },
-  searchEmpty: {
-    fontSize: 18,
-    color: 'gray',
-  },
-  mainFeaturesContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
-    padding: 15,
-  },
-  featureButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: "#6200ea",
-    paddingVertical: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  featureText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  content: {
-    flex: 1,
-    padding: 15,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  horizontalScroll: {
-    paddingLeft: 10,
-  },
-  bottomNavBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 15,
-    backgroundColor: "#6200ea",
-  },
-  bottomNavButton: {
-    padding: 10,
-  },
-  bottomNavText: {
-    color: "#fff",
-    fontSize: 16,
+  searchContentContainer: {
+    paddingBottom: 20,
   },
 });
-
+const styles2 = StyleSheet.create({
+  scrollView: {
+    flex: 1, // Ensure ScrollView takes full available space
+  },
+  container: {
+    marginVertical: 15,
+    paddingHorizontal: 10,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  listContainer: {
+    paddingHorizontal: 5,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    marginHorizontal: 5,
+    padding: 10,
+    width: 150,
+    height: 120,
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  cardDescription: {
+    fontSize: 10,
+    color: '#666',
+  },
+  cardPrice: {
+    fontSize: 12,
+    color: '#28a745',
+  },
+});
 
 export default LandingPage;

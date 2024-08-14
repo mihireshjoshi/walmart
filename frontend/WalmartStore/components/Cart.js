@@ -81,7 +81,7 @@ const Cart = () => {
                     renderSectionFooter={({ section }) =>
                         section.title === 'Footer' ? (
                             <View style={styles.footer}>
-                                <Text style={styles.totalAmount}>Total Amount: ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}</Text>
+                                <Text style={styles.totalAmount}>Total Amount: Rs :{cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}/-</Text>
                                 <Button title="Checkout using Stripe" onPress={handleStripeCheckout} />
                                 <View style={styles.spacer} />
                                 <Button title="Checkout using Counter" onPress={handleCounterCheckout} />
@@ -99,32 +99,49 @@ const Cart = () => {
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        backgroundColor: '#f9f9f9', // Added a light background color
     },
     cartItem: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
+        padding: 15,
+        marginVertical: 10,
+        borderRadius: 10,
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3, // For Android shadow
     },
     itemName: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#333', // Changed color for better visibility
     },
     itemDetails: {
         fontSize: 16,
         marginTop: 5,
+        color: '#666', // Changed color for better readability
     },
     totalAmount: {
         fontSize: 20,
         fontWeight: 'bold',
         marginVertical: 15,
+        color: '#000', // Changed color for visibility
     },
     footer: {
-        paddingTop: 20,
+        padding: 20, // Updated to include padding for better spacing
+        backgroundColor: '#fff',
+        borderRadius: 10, // Added border radius to round corners
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3, // For Android shadow
+        marginVertical: 10, // Added margin to separate from other content
     },
     spacer: {
         height: 10,
@@ -137,6 +154,14 @@ const styles = StyleSheet.create({
     emptyCartText: {
         fontSize: 18,
         color: '#555',
+    },
+    button: {
+        borderRadius: 20, // Rounding the button edges
+        marginVertical: 10,
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 

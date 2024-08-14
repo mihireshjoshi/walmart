@@ -31,7 +31,7 @@ def store_product_in_supabase(product_id: str, name: str, description: str, pric
     response = supabase.table('products').insert(product_data).execute()
     return response
 
-product_id = "123456789019"
+product_id = "123456789021"
 barcode_image_path = generate_barcode(product_id)
-store_product_in_supabase(product_id, "Ralph Lauren Polo", "Mens Shirt", 10999, "Clothes", barcode_image_path)
+store_product_in_supabase(product_id, "Apple iPhone 15 ", "Blue", 69999, "Electronics", barcode_image_path)
 

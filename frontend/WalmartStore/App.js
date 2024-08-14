@@ -19,7 +19,7 @@ import CreateShoppingList from "./components/CreateShoppingList";
 import RewardSplashScreen from "./components/RewardSplashScreen";
 import { useEffect } from "react";
 import { clearAsyncStorage } from "./components/storageUtils"; // Import the clearAsyncStorage function
-
+import ScanningCashier from "./components/ScanningCashier";
 const Stack = createStackNavigator();
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews",
@@ -55,6 +55,7 @@ function App() {
             <Stack.Screen name="Search" component={Search} />
             <Stack.Screen name="BarcodeScanner" component={BarcodeScanner} />
             <Stack.Screen name="QueueStatus" component={QueueStatus} />
+            <Stack.Screen name="ScanningCashier" component={ScanningCashier} />
             <Stack.Screen
               name="CreateShoppingList"
               component={CreateShoppingList}

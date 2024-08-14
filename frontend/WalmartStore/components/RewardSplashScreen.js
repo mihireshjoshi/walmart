@@ -25,7 +25,7 @@ const RewardSplashScreen = () => {
 
                     // Add 15 coins to the virtual rewards
                     const storedCoins = await AsyncStorage.getItem('virtualCoins');
-                    const newCoinBalance = (parseInt(storedCoins) || 0) + 15;
+                    const newCoinBalance = (parseInt(storedCoins) || 30) + 15;
                     await AsyncStorage.setItem('virtualCoins', newCoinBalance.toString());
 
                     // Navigate back to the home screen

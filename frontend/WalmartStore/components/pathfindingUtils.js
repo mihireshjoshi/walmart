@@ -1,4 +1,3 @@
-// src/components/pathfindingUtils.js
 export const aStar = (start, goal, grid) => {
   const openSet = [start];
   const cameFrom = {};
@@ -10,8 +9,10 @@ export const aStar = (start, goal, grid) => {
     const neighbors = [];
 
     const directions = [
-      { x: -1, y: 0 }, { x: 1, y: 0 },
-      { x: 0, y: -1 }, { x: 0, y: 1 }
+      { x: -1, y: 0 },
+      { x: 1, y: 0 },
+      { x: 0, y: -1 },
+      { x: 0, y: 1 },
     ];
 
     for (let dir of directions) {
@@ -19,9 +20,11 @@ export const aStar = (start, goal, grid) => {
       const neighborY = y + dir.y;
 
       if (
-        neighborX >= 0 && neighborX < grid[0].length &&
-        neighborY >= 0 && neighborY < grid.length &&
-        grid[neighborY][neighborX] === 0 
+        neighborX >= 0 &&
+        neighborX < grid[0].length &&
+        neighborY >= 0 &&
+        neighborY < grid.length &&
+        grid[neighborY][neighborX] === 0
       ) {
         neighbors.push({ x: neighborX, y: neighborY });
       }
@@ -46,10 +49,16 @@ export const aStar = (start, goal, grid) => {
 
   while (openSet.length > 0) {
     let current = openSet.reduce((lowest, pos) => {
-      return fScore[`${pos.x},${pos.y}`] < fScore[`${lowest.x},${lowest.y}`] ? pos : lowest;
+      return fScore[`${pos.x},${pos.y}`] < fScore[`${lowest.x},${lowest.y}`]
+        ? pos
+        : lowest;
     });
 
-    if (grid[goal.y][goal.x] === 0 && current.x === goal.x && current.y === goal.y) {
+    if (
+      grid[goal.y][goal.x] === 0 &&
+      current.x === goal.x &&
+      current.y === goal.y
+    ) {
       const path = [];
       while (current) {
         path.unshift(current);
@@ -65,8 +74,11 @@ export const aStar = (start, goal, grid) => {
       if (tentative_gScore < gScore[`${neighbor.x},${neighbor.y}`]) {
         cameFrom[`${neighbor.x},${neighbor.y}`] = current;
         gScore[`${neighbor.x},${neighbor.y}`] = tentative_gScore;
-        fScore[`${neighbor.x},${neighbor.y}`] = gScore[`${neighbor.x},${neighbor.y}`] + heuristic(neighbor, goal);
-        if (!openSet.some(pos => pos.x === neighbor.x && pos.y === neighbor.y)) {
+        fScore[`${neighbor.x},${neighbor.y}`] =
+          gScore[`${neighbor.x},${neighbor.y}`] + heuristic(neighbor, goal);
+        if (
+          !openSet.some((pos) => pos.x === neighbor.x && pos.y === neighbor.y)
+        ) {
           openSet.push(neighbor);
         }
       }
@@ -96,11 +108,43 @@ export const aStar = (start, goal, grid) => {
   return [];
 };
 
-  
-  export const positionToGridIndex = (position, gridSize) => {
-    return {
-      x: Math.floor(position.x / gridSize),
-      y: Math.floor(position.y / gridSize)
-    };
+export const findShortestPath = (start, destinations, grid) => {
+  let shortestPath = [];
+  let currentStart = start;
+
+  while (destinations.length > 0) {
+    let bestPath = null;
+    let bestDestination = null;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i < destinations.length; i++) {
+      const destination = destinations[i];
+      const path = aStar(currentStart, destination, grid);
+
+      if (path.length > 0 && path.length < bestDistance) {
+        bestPath = path;
+        bestDestination = destination;
+        bestDistance = path.length;
+      }
+    }
+
+    if (bestPath) {
+      shortestPath = shortestPath.concat(bestPath.slice(1)); // Skip the first point to avoid duplication
+      currentStart = bestDestination;
+      destinations = destinations.filter(
+        (dest) => dest.x !== bestDestination.x || dest.y !== bestDestination.y
+      );
+    } else {
+      break; // No more reachable destinations
+    }
+  }
+
+  return shortestPath;
+};
+
+export const positionToGridIndex = (position, gridSize) => {
+  return {
+    x: Math.floor(position.x / gridSize),
+    y: Math.floor(position.y / gridSize),
   };
-  
+};

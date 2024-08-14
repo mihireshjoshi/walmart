@@ -1,122 +1,362 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Dimensions } from 'react-native';
-import { useSelector } from 'react-redux';
-import { Svg, Rect, Line, G, Path, Image } from 'react-native-svg';
-import { Picker } from '@react-native-picker/picker';
-import { aStar } from './pathfindingUtils'; 
-import { generateDirections } from './directionsUtils'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  Modal,
+  FlatList,
+} from "react-native";
+import { useSelector } from "react-redux";
+import {
+  Svg,
+  Rect,
+  Line,
+  G,
+  Path,
+  Image,
+  Text as SvgText,
+  SvgImage,
+} from "react-native-svg";
+import { Picker } from "@react-native-picker/picker";
+import { aStar, findShortestPath } from "./pathfindingUtils";
+import { generateDirections } from "./directionsUtils";
+import {
+  TouchableOpacity,
+  PinchGestureHandler,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import { MaterialIcons } from "@expo/vector-icons";
 
-const buyerIconWidth = 40; // Width of the image
-const buyerIconHeight = 43; // Heigh of Image
-const locationIconWidth = 43; // Width of the image
-const locationIconHeight = 43; // Height of the image
-const gridSize = 30; // Adjusting grid size for larger layout
+// Constants for dimensions
+const buyerIconWidth = 40;
+const buyerIconHeight = 43;
+const locationIconWidth = 43;
+const locationIconHeight = 43;
+const circleRadius = Math.max(buyerIconWidth, buyerIconHeight) / 2 - 5;
+const circleColor = "#0B2D56";
+const windowWidth = Dimensions.get("window").width;
+const gridSize = 30;
 
-// Store layout
+// Store layout with real section names
 const storeLayout = [
-  [2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 3, 3, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0],
-  [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [6, 0, 7, 7, 7, 0, 8, 8, 8, 0, 9, 9, 9, 0, 10, 10, 10, 0, 11, 0, 12, 0],
-  [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 12, 0],
-  [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 0, 0, 0, 0, 0],
-  [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 23, 23, 23, 23, 0],
-  [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 23, 23, 23, 23, 0],
-  [6, 0, 13, 14, 0, 15, 16, 0, 17, 18, 0, 19, 20, 0, 21, 22, 0, 0, 0, 0, 0, 0],
-  [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 0, 99, 0, 99, 0, 0, 0, 0, 0],
-  [6, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 0, 99, 0, 99, 0, 0, 0, 0, 0],
+  [
+    "Clothing",
+    "Clothing",
+    "Clothing",
+    "Clothing",
+    "Clothing",
+    "Clothing",
+    0,
+    "Grocery",
+    "Grocery",
+    "Grocery",
+    "Grocery",
+    "Grocery",
+    0,
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    "Electronics",
+    0,
+  ],
+  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [
+    "Pharmacy",
+    0,
+    "Home Decor",
+    "Home Decor",
+    "Home Decor",
+    0,
+    "Toys",
+    "Toys",
+    "Toys",
+    0,
+    "Furniture",
+    "Furniture",
+    "Furniture",
+    0,
+    "Sporting Goods",
+    "Sporting Goods",
+    "Sporting Goods",
+    0,
+    "Outdoor",
+    0,
+    "Automotive",
+    0,
+  ],
+  [
+    "Pharmacy",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    "Outdoor",
+    0,
+    "Automotive",
+    0,
+  ],
+  [
+    "Pharmacy",
+    0,
+    "Appliances",
+    "Books",
+    0,
+    "Beauty",
+    "Cosmetics",
+    0,
+    "Bakery",
+    "Dairy",
+    0,
+    "Produce",
+    "Meat",
+    0,
+    "Household Essentials",
+    "Cleaning Supplies",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ],
+  [
+    "Pharmacy",
+    0,
+    "Appliances",
+    "Books",
+    0,
+    "Beauty",
+    "Cosmetics",
+    0,
+    "Bakery",
+    "Dairy",
+    0,
+    "Produce",
+    "Meat",
+    0,
+    "Household Essentials",
+    "Cleaning Supplies",
+    0,
+    "Checkout",
+    "Checkout",
+    "Checkout",
+    "Checkout",
+    0,
+  ],
+  [
+    "Pharmacy",
+    0,
+    "Appliances",
+    "Books",
+    0,
+    "Beauty",
+    "Cosmetics",
+    0,
+    "Bakery",
+    "Dairy",
+    0,
+    "Produce",
+    "Meat",
+    0,
+    "Household Essentials",
+    "Cleaning Supplies",
+    0,
+    "Checkout",
+    "Checkout",
+    "Checkout",
+    "Checkout",
+    0,
+  ],
+  [
+    "Pharmacy",
+    0,
+    "Appliances",
+    "Books",
+    0,
+    "Beauty",
+    "Cosmetics",
+    0,
+    "Bakery",
+    "Dairy",
+    0,
+    "Produce",
+    "Meat",
+    0,
+    "Household Essentials",
+    "Cleaning Supplies",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ],
+  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [
+    "Pharmacy",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    "Entrance",
+    0,
+    "Entrance",
+    0,
+    "Entrance",
+    0,
+    0,
+    0,
+    0,
+    0,
+  ],
+  [
+    "Pharmacy",
+    "Pharmacy",
+    "Entrance",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    "Entrance",
+    0,
+    "Entrance",
+    0,
+    "Entrance",
+    0,
+    0,
+    0,
+    0,
+    0,
+  ],
 ];
 
 // Locations for sections and features
 const locations = {
-  "Entrance": { x: 3, y: 11 },
+  Entrance: { x: 3, y: 11 },
   "Checkout 1": { x: 13, y: 10 },
   "Checkout 2": { x: 15, y: 10 },
   "Checkout 3": { x: 17, y: 10 },
-  "Section 2": { x: 0, y: 0 },
-  "Section 3": { x: 7, y: 0 },
-  "Section 4": { x: 13, y: 0 },
-  "Section 6": { x: 0, y: 1 },
-  "Section 7": { x: 2, y: 2 },
-  "Section 8": { x: 6, y: 2 },
-  "Section 9": { x: 10, y: 2 },
-  "Section 10": { x: 14, y: 2 },
-  "Section 11": { x: 18, y: 3 },
-  "Section 12": { x: 20, y: 3 },
-  "Section 13": { x: 2, y: 4 },
-  "Section 14": { x: 3, y: 4 },
-  "Section 15": { x: 5, y: 4 },
-  "Section 16": { x: 6, y: 4 },
-  "Section 17": { x: 8, y: 4 },
-  "Section 18": { x: 9, y: 4 },
-  "Section 19": { x: 11, y: 4 },
-  "Section 20": { x: 12, y: 4 },
-  "Section 21": { x: 14, y: 4 },
-  "Section 22": { x: 15, y: 4 },
-  "Section 23": { x: 18, y: 5 },
+  Clothing: { x: 2, y: 1 },
+  Grocery: { x: 9, y: 1 },
+  Electronics: { x: 16, y: 1 },
+  Pharmacy: { x: 1, y: 6 },
+  "Home Decor": { x: 2, y: 3 },
+  Toys: { x: 7, y: 3 },
+  Furniture: { x: 11, y: 3 },
+  "Sporting Goods": { x: 15, y: 3 },
+  Outdoor: { x: 18, y: 3 },
+  Automotive: { x: 20, y: 3 },
+  Appliances: { x: 2, y: 5 },
+  Books: { x: 3, y: 5 },
+  Beauty: { x: 5, y: 5 },
+  Cosmetics: { x: 6, y: 5 },
+  Bakery: { x: 8, y: 5 },
+  Dairy: { x: 9, y: 5 },
+  Snacks: { x: 11, y: 5 },
+  Meat: { x: 12, y: 5 },
+  "Household Essentials": { x: 13, y: 5 },
+  "Cleaning Supplies": { x: 16, y: 5 },
+  Checkout: { x: 18, y: 5 },
 };
 
+// Different shades of the same color
 const sectionColors = {
-  1: "#85A7D0",    // Updated color
-  99: "#85A7D0",   // Updated color
-  2: "#85A7D0",    // Updated color
-  3: "#85A7D0",    // Updated color
-  4: "#85A7D0",    // Updated color
-  6: "#85A7D0",    // Updated color
-  7: "#85A7D0",    // Updated color
-  8: "#85A7D0",    // Updated color
-  9: "#85A7D0",    // Updated color
-  10: "#85A7D0",   // Updated color
-  11: "#85A7D0",   // Updated color
-  12: "#85A7D0",   // Updated color
-  13: "#85A7D0",   // Updated color
-  14: "#85A7D0",   // Updated color
-  15: "#85A7D0",   // Updated color
-  16: "#85A7D0",   // Updated color
-  17: "#85A7D0",   // Updated color
-  18: "#85A7D0",   // Updated color
-  19: "#85A7D0",   // Updated color
-  20: "#85A7D0",   // Updated color
-  21: "#85A7D0",   // Updated color
-  22: "#85A7D0",   // Updated color
-  23: "#85A7D0",   // Updated color
+  Entrance: "#1E90FF", // Dodger Blue - Bright and welcoming.
+  Checkout: "#FF6347", // Tomato - Energetic and encouraging for the final step.
+  Clothing: "#6A5ACD", // Slate Blue - Stylish and appealing.
+  Grocery: "#20B2AA", // Light Sea Green - Fresh and natural.
+  Electronics: "#FF4500", // Orange Red - Bold and dynamic.
+  Pharmacy: "#369768", // Lime Green - Healthy and fresh.
+  "Home Decor": "#FF8C00", // Dark Orange - Warm and comforting.
+  Toys: "#D10032", // Hot Pink - Fun and lively.
+  Furniture: "#57352A", // Steel Blue - Reliable and strong.
+  "Sporting Goods": "#00BFFF", // Deep Sky Blue - Active and invigorating.
+  Outdoor: "#2E8B57", // Sea Green - Natural and calming.
+  Automotive: "#DC143C", // Gold - Bold and dependable.
+  Appliances: "#DC143C", // Crimson - Strong and vibrant.
+  Books: "#8A2BE2", // Blue Violet - Intellectual and creative.
+  Beauty: "#FF1493", // Deep Pink - Bold and glamorous.
+  Cosmetics: "#BA55D3", // Medium Orchid - Elegant and charming.
+  Bakery: "#B8009B", // Light Pink - Warm and inviting.
+  Dairy: "#256CAD", // Light Sky Blue - Fresh and light.
+  Produce: "#32CD32", // Lime Green - Fresh and healthy (repeated from Pharmacy for freshness).
+  Meat: "#CD5C5C", // Indian Red - Rich and robust.
+  "Household Essentials": "#FF6347", // Tomato - Essential and supportive (repeated from Checkout).
+  "Cleaning Supplies": "#4682B4", // Steel Blue - Clean and efficient (repeated from Furniture).
 };
 
 const colors = {
-  0: 'white',  // Walkable paths
+  0: "white", // Walkable paths
 };
 
 const MapView = ({ navigation, route }) => {
   const { userPosition } = useSelector((state) => state.position);
   const [path, setPath] = useState([]);
   const [source, setSource] = useState(locations["Entrance"]);
-  const [destination, setDestination] = useState(locations["Section 2"]); // Default destination
+  const [destination, setDestination] = useState(locations["Clothing"]); // Default destination
   const [directions, setDirections] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentOffer, setCurrentOffer] = useState("");
+  const [shoppingList, setShoppingList] = useState([
+    "Grocery",
+    "Electronics",
+    "Pharmacy",
+  ]); // New state for shopping list
+  const [checkedItems, setCheckedItems] = useState({});
 
   useEffect(() => {
-    const getProductSectionFromAsyncStorage = async () => {
-      try {
-        const productSection = await AsyncStorage.getItem('product_section');
-        if (productSection && locations[productSection]) {
-          setSource(locations[productSection]);
-        }
-      } catch (error) {
-        console.error("Failed to get product section from AsyncStorage:", error);
-      }
-    };
-
-    getProductSectionFromAsyncStorage();
-  }, [route.params]);
+    if (route.params && route.params.scannedPosition) {
+      setSource(route.params.scannedPosition);
+    }
+  }, [route.params?.scannedPosition]);
 
   useEffect(() => {
     const start = source ? source : { x: 0, y: 0 };
-    const newPath = aStar(start, destination, storeLayout);
+    const selectedDestinations = shoppingList
+      .filter((item) => !checkedItems[item])
+      .map((item) => locations[item]);
+
+    const newPath = findShortestPath(start, selectedDestinations, storeLayout);
     setPath([start, ...newPath]);
     setDirections(generateDirections(newPath));
-  }, [source, destination]);
+  }, [source, destination, shoppingList, checkedItems]);
 
   const handleSourceChange = (itemValue) => {
     setSource(locations[itemValue]);
@@ -126,94 +366,469 @@ const MapView = ({ navigation, route }) => {
     setDestination(locations[itemValue]);
   };
 
-  const markerIcon = (
-    <Path
-      d="M12 2C7.588 2 4 5.588 4 10c0 6.082 7.347 11.908 7.623 12.123a1 1 0 0 0 1.153 0C13.653 21.908 21 16.082 21 10c0-4.412-3.588-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
-      fill="red"
-    />
-  );
+  const handleAddItem = (item) => {
+    setShoppingList([...shoppingList, item]);
+    setCheckedItems({ ...checkedItems, [item]: false });
+  };
+
+  const handleCheckItem = (item) => {
+    setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
+    if (!checkedItems[item]) {
+      setSource(locations[item]);
+    }
+  };
 
   const lastPathBlock = path.length > 0 ? path[path.length - 1] : source;
 
+  const getLabelColor = (section) => {
+    if (!sectionColors[section]) {
+      return "black"; // Default to black if color is not defined
+    }
+
+    const color = sectionColors[section];
+    const rgb = parseInt(color.substring(1), 16); // Convert hex to RGB
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff;
+    const b = (rgb >> 0) & 0xff;
+    const brightness = 0.299 * r + 0.587 * g + 0.114 * b; // Standard luminance formula
+
+    return brightness > 127.5 ? "black" : "white"; // Return black for light colors, white for dark colors
+  };
+
+  const [offers, setOffers] = useState({
+    Clothing: "Buy 1 Get 1 Free!",
+    Electronics: "Up to 50% off on selected items",
+    Outdoor: "20% off on all items",
+    // Add more offers as needed
+  });
+
+  const handleCellPress = (section) => {
+    if (offers[section]) {
+      setCurrentOffer(offers[section]);
+      setModalVisible(true);
+    }
+  };
+
   return (
-    <View>
+    <ScrollView>
       <ScrollView horizontal style={styles.container}>
         <ScrollView style={styles.container}>
-        
           <Svg
             height={storeLayout.length * gridSize}
             width={storeLayout[0].length * gridSize}
-            viewBox={`0 0 ${storeLayout[0].length * gridSize} ${storeLayout.length * gridSize}`}
+            viewBox={`0 0 ${storeLayout[0].length * gridSize} ${
+              storeLayout.length * gridSize
+            }`}
           >
             {storeLayout.map((row, y) =>
               row.map((cell, x) => {
-                let fillColor = colors[cell];
+                let fillColor = colors[cell] || "white";
                 if (sectionColors[cell]) {
                   fillColor = sectionColors[cell];
                 }
                 return (
-                  <Rect
-                    key={`${x}-${y}`}
-                    x={x * gridSize}
-                    y={y * gridSize}
-                    width={gridSize}
-                    height={gridSize}
-                    fill={fillColor}
-                    stroke="grey"
-                  />
+                  <G key={`${x}-${y}`}>
+                    <Rect
+                      x={x * gridSize}
+                      y={y * gridSize}
+                      width={gridSize}
+                      height={gridSize}
+                      fill={fillColor}
+                    />
+                    {/* Add a star icon if the cell has an offer */}
+                    {offers[cell] && (
+                      <TouchableOpacity
+                        onPress={() => handleCellPress(cell)}
+                        style={{
+                          position: "absolute",
+                          left: x * gridSize,
+                          top: y * gridSize,
+                          width: gridSize,
+                          height: gridSize,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <MaterialIcons name="star" size={20} color="gold" />
+                      </TouchableOpacity>
+                    )}
+                  </G>
                 );
               })
             )}
 
-            {path.map((point, index) => (
-              index > 0 && (
-                <Line
-                  key={`${index}-${point.x}-${point.y}`}
-                  x1={path[index - 1].x * gridSize + gridSize / 2}
-                  y1={point.y * gridSize + gridSize / 2}
-                  x2={point.x * gridSize + gridSize / 2}
-                  y2={point.y * gridSize + gridSize / 2}
-                  stroke="#0B2D56"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )
-            ))}
+            {/* Manually placed labels */}
+            <SvgText
+              x={90} // X coordinate
+              y={16} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+            >
+              Clothing
+            </SvgText>
+
+            <SvgText
+              x={466} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 466, 180)`}
+            >
+              Cleaning
+            </SvgText>
+
+            <SvgText
+              x={436} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(90, 436, 180)`}
+            >
+              Household
+            </SvgText>
+
+            <SvgText
+              x={570}
+              y={180}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
+            >
+              Checkout
+            </SvgText>
+
+            <SvgText
+              x={16}
+              y={200}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 16, 200)`}
+            >
+              Pharmacy
+            </SvgText>
+
+            <SvgText
+              x={286}
+              y={16}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
+            >
+              Grocery
+            </SvgText>
+
+            <SvgText
+              x={510}
+              y={16}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              // transform={`rotate(-90 ${10 * gridSize}, ${5 * gridSize})`}
+            >
+              Electronics
+            </SvgText>
+
+            <SvgText
+              x={554}
+              y={90}
+              fontSize={14}
+              fontWeight={"500"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              transform={`rotate(90, 554, 90)`}
+            >
+              Outdoor
+            </SvgText>
+
+            <SvgText
+              x={616}
+              y={90}
+              fontSize={10}
+              fontWeight={"500"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+              transform={`rotate(90, 616, 90)`}
+            >
+              Automotive
+            </SvgText>
+
+            <SvgText
+              x={226} // X coordinate
+              y={76} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+            >
+              Toys
+            </SvgText>
+
+            <SvgText
+              x={104} // X coordinate
+              y={76} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+            >
+              Decor
+            </SvgText>
+
+            <SvgText
+              x={346} // X coordinate
+              y={76} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+            >
+              Furniture
+            </SvgText>
+
+            <SvgText
+              x={466} // X coordinate
+              y={76} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+            >
+              Sports
+            </SvgText>
+
+            <SvgText
+              x={106} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 106, 180)`}
+            >
+              Books
+            </SvgText>
+
+            <SvgText
+              x={76} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(90, 76, 180)`}
+            >
+              Appliances
+            </SvgText>
+
+            <SvgText
+              x={196} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 196, 180)`}
+            >
+              Cosmetics
+            </SvgText>
+
+            <SvgText
+              x={166} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(90, 166, 180)`}
+            >
+              Beauty
+            </SvgText>
+
+            <SvgText
+              x={286} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 286, 180)`}
+            >
+              Dairy
+            </SvgText>
+
+            <SvgText
+              x={256} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(90, 256, 180)`}
+            >
+              Bakery
+            </SvgText>
+
+            <SvgText
+              x={376} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 376, 180)`}
+            >
+              Meat
+            </SvgText>
+
+            <SvgText
+              x={346} // X coordinate
+              y={180} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"500"}
+              fill="white" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(90, 346, 180)`}
+            >
+              Snacks
+            </SvgText>
+
+            <SvgText
+              x={376} // X coordinate
+              y={330} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="#0B2D56" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              // transform={`rotate(90, 436, 180)`}
+            >
+              A
+            </SvgText>
+
+            <SvgText
+              x={436} // X coordinate
+              y={330} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="#0B2D56" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              // transform={`rotate(90, 436, 180)`}
+            >
+              B
+            </SvgText>
+
+            <SvgText
+              x={496} // X coordinate
+              y={330} // Y coordinate
+              fontSize={16} // Font size
+              fontWeight={"bold"}
+              fill="#0B2D56" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              // transform={`rotate(90, 436, 180)`}
+            >
+              C
+            </SvgText>
+
+            {/* Add more labels as needed */}
+
+            {path.map(
+              (point, index) =>
+                index > 0 && (
+                  <Line
+                    key={`${index}-${point.x}-${point.y}`}
+                    x1={path[index - 1].x * gridSize + gridSize / 2}
+                    y1={path[index - 1].y * gridSize + gridSize / 2}
+                    x2={point.x * gridSize + gridSize / 2}
+                    y2={point.y * gridSize + gridSize / 2}
+                    stroke="#0B2D56"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )
+            )}
 
             {/* Start Marker */}
             <G
-              transform={`translate(${source.x * gridSize + gridSize / 2 - buyerIconWidth / 2}, ${source.y * gridSize + gridSize / 2 - buyerIconHeight / 2})`}
+              transform={`translate(${
+                source.x * gridSize + gridSize / 2 - buyerIconWidth / 2
+              }, ${source.y * gridSize + gridSize / 2 - buyerIconHeight / 2})`}
             >
               <Image
-                href={require('../assets/buyer.png')} // Path to the image
-                width={buyerIconWidth} 
+                href={require("../assets/buyer.png")}
+                width={buyerIconWidth}
                 height={buyerIconHeight}
               />
             </G>
 
             {/* Destination Marker on the last path block */}
             <G
-              transform={`translate(${lastPathBlock.x * gridSize + gridSize / 2 - locationIconWidth / 2}, ${lastPathBlock.y * gridSize + gridSize / 2 - locationIconHeight / 2})`}
+              transform={`translate(${
+                lastPathBlock.x * gridSize +
+                gridSize / 2 -
+                locationIconWidth / 2
+              }, ${
+                lastPathBlock.y * gridSize +
+                gridSize / 2 -
+                locationIconHeight / 2
+              })`}
             >
               <Image
-                href={require('../assets/location.png')} // Path to the image
-                width={locationIconWidth} 
+                href={require("../assets/location.png")}
+                width={locationIconWidth}
                 height={locationIconHeight}
               />
             </G>
           </Svg>
         </ScrollView>
       </ScrollView>
-      <View>
-        <View style={styles.topPop}>
+
+      <View style={styles.topPopContainer}>
+        <ScrollView style={styles.topPop}>
           <View style={styles.optPop}>
             <View style={styles.select}>
-
               <Text>Source</Text>
               <View style={styles.picker}>
                 <Picker
-                  selectedValue={Object.keys(locations).find(key => locations[key] === source)}
+                  selectedValue={Object.keys(locations).find(
+                    (key) => locations[key] === source
+                  )}
                   onValueChange={handleSourceChange}
                 >
                   {Object.keys(locations).map((key) => (
@@ -221,15 +836,15 @@ const MapView = ({ navigation, route }) => {
                   ))}
                 </Picker>
               </View>
-
             </View>
 
             <View style={styles.select}>
-
               <Text>Destination</Text>
               <View style={styles.picker}>
                 <Picker
-                  selectedValue={Object.keys(locations).find(key => locations[key] === destination)}
+                  selectedValue={Object.keys(locations).find(
+                    (key) => locations[key] === destination
+                  )}
                   onValueChange={handleDestinationChange}
                 >
                   {Object.keys(locations).map((key) => (
@@ -237,33 +852,72 @@ const MapView = ({ navigation, route }) => {
                   ))}
                 </Picker>
               </View>
-
             </View>
-
           </View>
 
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('QRScanner');
+              navigation.navigate("QRScanner");
             }}
             style={styles.qrButton}
           >
             <Text style={styles.qrTxt}>Scan your current location QR</Text>
           </TouchableOpacity>
 
-        </View>
+          {/* Product List */}
+          <View style={styles.productListContainer}>
+            <Text style={styles.productListTitle}>Shopping List</Text>
+            <FlatList
+              data={shoppingList}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.productListItem}
+                  onPress={() => handleCheckItem(item)}
+                >
+                  <Text style={styles.productListText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item}
+            />
+          </View>
+        </ScrollView>
       </View>
-    </View>
+
+      {/* MODAL HERE */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+        animationType="slide"
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Special Offer</Text>
+            <Text style={styles.modalText}>{currentOffer}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                console.log("Close button pressed"); // Debugging log
+                setModalVisible(false); // Close the modal
+              }}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: "auto",
-    zIndex: -1
+    zIndex: -1,
   },
+
   topPop: {
-    width: Dimensions.get('window').width,
+    width: windowWidth,
     backgroundColor: "#eeeeee",
     zIndex: 1,
     elevation: 4,
@@ -281,28 +935,161 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     backgroundColor: "#fff",
     borderRadius: 8,
-    elevation: 2
+    elevation: 2,
   },
   picker: {
     padding: 0,
     backgroundColor: "#CFDDEF",
-    borderRadius: 4
+    borderRadius: 4,
   },
   qrButton: {
     marginHorizontal: 14,
     backgroundColor: "#266BBC",
+    paddingHorizontal: "auto",
     paddingVertical: 10,
     borderRadius: 8,
-    marginBottom: 120,
+    // marginBottom: 120,
     marginTop: 12,
-    elevation: 1
+    elevation: 1,
   },
   qrTxt: {
     fontSize: 18,
     fontWeight: "700",
     color: "white",
     textAlign: "center",
-  }
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  closeButton: {
+    backgroundColor: "#266BBC",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  productListContainer: {
+    margin: 20,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    elevation: 3,
+  },
+  productListTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  productListItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  productListText: {
+    fontSize: 16,
+    color: "#555",
+  },
 });
 
 export default MapView;
+
+// Comment:
+
+// <View style={styles.topPop}>
+
+//   <View style={styles.optPop}>
+//     <View style={styles.select}>
+//       <Text>Source</Text>
+//       <View style={styles.picker}>
+//         <Picker
+//           selectedValue={Object.keys(locations).find(key => locations[key] === source)}
+//           onValueChange={handleSourceChange}
+//         >
+//           {Object.keys(locations).map((key) => (
+//             <Picker.Item label={key} value={key} key={key} />
+//           ))}
+//         </Picker>
+//       </View>
+//     </View>
+
+//     <View style={styles.select}>
+//       <Text>Destination</Text>
+//       <View style={styles.picker}>
+//         <Picker
+//           selectedValue={Object.keys(locations).find(key => locations[key] === destination)}
+//           onValueChange={handleDestinationChange}
+//         >
+//           {Object.keys(locations).map((key) => (
+//             <Picker.Item label={key} value={key} key={key} />
+//           ))}
+//         </Picker>
+//       </View>
+//     </View>
+//   </View>
+
+//   <TouchableOpacity
+//     onPress={() => {
+//       navigation.navigate('QRScanner');
+//     }}
+//     style={styles.qrButton}
+//   >
+//     <Text style={styles.qrTxt}>Scan your current location QR</Text>
+//   </TouchableOpacity>
+
+//   {/* Product List */}
+//   <View style={styles.productListContainer}>
+//     <Text style={styles.productListTitle}>Shopping List</Text>
+//     <FlatList
+//       data={shoppingList}
+//       renderItem={({ item }) => (
+//         <TouchableOpacity
+//           style={styles.productListItem}
+//           onPress={() => handleCheckItem(item)}
+//         >
+//           <Text style={styles.productListText}>
+//             {item}
+//           </Text>
+//         </TouchableOpacity>
+//       )}
+//       keyExtractor={(item) => item}
+//     />
+//   </View>
+
+// </View>

@@ -8,13 +8,9 @@ import {
   ScrollView,
   FlatList,
   TextInput,
-  Button,
 } from "react-native";
-import CustomHeader from "../components/CustomHeader";
 
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Feather from "@expo/vector-icons/Feather";
-
+import { Feather, AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
@@ -35,24 +31,33 @@ const LandingPage = () => {
   const [productName, setProductName] = useState("");
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
-  const [virtualCoins, setVirtualCoins] = useState(0);
-  const [listname, setListName] = useState("Create Your Shopping List");
+  const [virtualCoins, setVirtualCoins] = useState(30);
+  const [listName, setListName] = useState("Create Your Shopping List");
 
   useEffect(() => {
     const fetchVirtualCoins = async () => {
       try {
         const storedCoins = await AsyncStorage.getItem("virtualCoins");
-        setVirtualCoins(parseInt(storedCoins) || 0);
+        setVirtualCoins(parseInt(storedCoins) || 30);
       } catch (error) {
         console.error("Error fetching virtual coins:", error);
       }
     };
 
+    const checkShoppingList = async () => {
+      const listSections = await AsyncStorage.getItem("List_sections");
+      if (listSections) {
+        setListName("View Your Shopping List");
+      }
+    };
+
     const unsubscribe = navigation.addListener("focus", () => {
       fetchVirtualCoins(); // Fetch coins when the screen is focused
+      checkShoppingList(); // Check shopping list when the screen is focused
     });
 
     fetchVirtualCoins(); // Fetch coins on initial load
+    checkShoppingList(); // Check shopping list on initial load
 
     return unsubscribe; // Clean up the listener on unmount
   }, [navigation]);
@@ -306,10 +311,17 @@ const LandingPage = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Shopping List Button */}
       <View style={stylesmainfeature.createShoppingListContainer}>
         <TouchableOpacity
           style={stylesmainfeature.createShoppingListButton}
-          onPress={() => navigation.navigate("CreateShoppingList")}
+          onPress={() =>
+            navigation.navigate(
+              listName === "View Your Shopping List"
+                ? "CreateShoppingList"
+                : "CreateShoppingList"
+            )
+          }
         >
           <Feather
             name="shopping-cart"
@@ -318,7 +330,7 @@ const LandingPage = () => {
             style={stylesmainfeature.icon}
           />
           <Text style={stylesmainfeature.createShoppingListText}>
-            {listname}
+            {listName}
           </Text>
         </TouchableOpacity>
       </View>

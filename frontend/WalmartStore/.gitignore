@@ -3,8 +3,6 @@
 # dependencies
 node_modules/
 
-components/BarcodeScanner.js
-
 # Expo
 .expo/
 dist/

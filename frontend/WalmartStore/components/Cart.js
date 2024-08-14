@@ -1,31 +1,57 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Button, Alert, StyleSheet, SectionList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { useNavigation } from '@react-navigation/native';
+import API_URL from './apiurl';
 
 const Cart = () => {
     const { cart, totalAmount } = useContext(CartContext);
     const [queueInfo, setQueueInfo] = useState(null);
     const navigation = useNavigation();
 
-    const handleStripeCheckout = () => {
-        Alert.alert('Stripe Checkout', 'Stripe payment integration coming soon!');
+    useEffect(() => {
+        const checkQueueStatus = async () => {
+            const storedQueueInfo = await AsyncStorage.getItem('queueInfo');
+            if (storedQueueInfo) {
+                setQueueInfo(JSON.parse(storedQueueInfo));
+            }
+        };
+        checkQueueStatus();
+    }, []);
+
+    const handleStripeCheckout = async () => {
+        try {
+            navigation.navigate('RewardSplashScreen');
+        } catch (error) {
+            console.error('Stripe payment error:', error);
+            Alert.alert('Payment Error', 'Something went wrong with the payment.');
+        }
     };
 
     const handleCounterCheckout = async () => {
+        if (queueInfo && queueInfo.estimated_time > 0) {
+            Alert.alert('Queue Already Allocated', `You are already in ${queueInfo.queue_name} with an estimated wait time of ${queueInfo.estimated_time} seconds.`);
+            navigation.navigate('QueueStatus', { queueInfo });
+            return;
+        }
+
         try {
-            const response = await axios.post('http://192.168.43.13:8000/allocate_queue');
+            const response = await axios.post(`${API_URL}/allocate_queue`);
             const queueData = response.data;
             setQueueInfo(queueData);
 
+            // Save queue info and allocation time in AsyncStorage
+            await AsyncStorage.setItem('queueInfo', JSON.stringify(queueData));
+            await AsyncStorage.setItem('allocationTime', Date.now().toString());
+
             if (queueData.estimated_time === 0) {
                 Alert.alert('Queue Allocated', `You have been directly allocated to ${queueData.queue_name}.`);
-                navigation.navigate('QueueStatus', { queueInfo: queueData });
             } else {
                 Alert.alert('Queue Allocated', `You have been allocated to ${queueData.queue_name} with an estimated wait time of ${queueData.estimated_time} seconds.`);
-                navigation.navigate('QueueStatus', { queueInfo: queueData });
             }
+            navigation.navigate('QueueStatus', { queueInfo: queueData });
         } catch (error) {
             console.error('Error during checkout:', error);
             Alert.alert('Error', 'Could not allocate queue. Please try again later.');
@@ -63,7 +89,7 @@ const Cart = () => {
                         ) : null
                     }
                     keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={{ flexGrow: 1 }}  // Ensures SectionList takes up full height
+                    contentContainerStyle={{ flexGrow: 1 }}
                 />
             ) : (
                 <View style={styles.emptyCartContainer}>

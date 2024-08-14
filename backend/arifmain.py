@@ -135,7 +135,6 @@ def process_queues():
                 ]
         time.sleep(10)  # Check every 10 seconds
 
-
 # Start the background task
 threading.Thread(target=process_queues, daemon=True).start()
 
@@ -149,10 +148,7 @@ async def get_product(barcode: str):
         
         product = response.data[0]
         print(product)
-        # Fetch sales information
-        #sale_info = await check_sales(product['prod_id'])
-        sale_info=None
-        # Fetch recommendations using the Gemini model
+        sale_info = None
         recommendations = await outputfn(product['price'], product['name'], product['description'])
 
         # Add sales information to the product details if available
@@ -181,14 +177,14 @@ async def allocate_and_status():
             if len(queues[least_busy_queue]) == 0:
                 estimated_time = 0  # First person in the queue has no wait time
             else:
-                # Calculate the time required for all people ahead in the queue
-                total_time = 0
-                for i, timestamp in enumerate(queues[least_busy_queue]):
-                    time_passed = current_time - timestamp
-                    time_remaining = max(0, CHECKOUT_TIME - time_passed)
-                    total_time += time_remaining
-
-                estimated_time = int(total_time + CHECKOUT_TIME)
+                # Time remaining for the person currently at the counter
+                time_passed_for_first_person = current_time - queues[least_busy_queue][0]
+                time_remaining_for_first_person = max(0, CHECKOUT_TIME - time_passed_for_first_person)
+                
+                # The total wait time is the time remaining for the first person
+                # plus the time required for all others ahead of the current person
+                num_people_ahead = len(queues[least_busy_queue])-1
+                estimated_time = time_remaining_for_first_person + (num_people_ahead * CHECKOUT_TIME)
 
             # Add the current time to the queue
             queues[least_busy_queue].append(current_time)
@@ -201,8 +197,7 @@ async def allocate_and_status():
                     if i == 0:
                         time_remaining = int(max(0, CHECKOUT_TIME - (current_time - timestamp)))
                     else:
-                        # Subsequent people have to wait for the previous one to finish
-                        time_remaining = int(remaining_times[-1] + CHECKOUT_TIME)
+                        time_remaining = remaining_times[-1] + CHECKOUT_TIME
                     remaining_times.append(time_remaining)
                 status[queue_name] = {
                     "total_people": len(queue),
@@ -211,7 +206,7 @@ async def allocate_and_status():
 
         return {
             "queue_name": least_busy_queue,
-            "estimated_time": estimated_time,  # The correct estimated time for the last person added to the queue
+            "estimated_time": int(estimated_time),  # Convert to integer
             "position": len(queues[least_busy_queue]),  # Position should reflect the actual size of the queue
             "queue_status": status
         }
@@ -219,5 +214,3 @@ async def allocate_and_status():
     except Exception as e:
         print("Error occurred at /allocate_queue route: ", str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-

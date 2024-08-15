@@ -24,8 +24,7 @@ import {
   TouchableOpacity,
 } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MaterialIcons } from "@expo/vector-icons";
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import icons
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'; import Icon from 'react-native-vector-icons/MaterialIcons'; // Import icons
 
 
 // Constants for dimensions
@@ -55,8 +54,7 @@ const gridSize = 30;
 const storeLayout = [
   [0, "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance"],
-  // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance"],
-  [0, "Books", "Books", "Books", "Books", "Books", "Books", 0, "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", 0, 0, 0, "Entrance"],
+  [0, "Shoes", "Shoes", "Shoes", "Shoes", "Shoes", "Shoes", 0, "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", 0, 0, 0, "Entrance"],
   [0, "Toys", "Toys", "Toys", "Toys", "Toys", "Toys", 0, "Bakery", "Bakery", "Bakery", "Bakery", "Bakery", "Bakery", 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, "Snacks", "Snacks", "Snacks", "Snacks", "Snacks", "Snacks", 0, "Meat", "Meat", "Meat", "Meat", "Meat", "Meat", 0, 0, 0, "Entrance"],
@@ -68,27 +66,26 @@ const storeLayout = [
 // Locations for sections and features
 const locations = {
   Entrance: { x: 0, y: 8 },
-  // "Checkout 1": { x: 13, y: 10 },
-  // "Checkout 2": { x: 15, y: 10 },
-  // "Checkout 3": { x: 17, y: 10 },
+  "Checkout 1": { x: 16, y: 1 },
+  "Checkout 2": { x: 16, y: 5 },
   Clothing: { x: 8, y: 0 },
   // Grocery: { x: 9, y: 1 },
   Electronics: { x: 8, y: 8 },
   // Pharmacy: { x: 1, y: 6 },
   // "Home Decor": { x: 2, y: 3 },
-  // Toys: { x: 7, y: 3 },
+  Toys: { x: 3, y: 3 },
   // Furniture: { x: 11, y: 3 },
-  // "Sporting Goods": { x: 15, y: 3 },
+  "Sporting Goods": { x: 10, y: 6 },
   // Outdoor: { x: 18, y: 3 },
   // Automotive: { x: 20, y: 3 },
   // Appliances: { x: 2, y: 5 },
-  Books: { x: 3, y: 2 },
-  Beauty: { x: 3, y: 3 },
+  Shoes: { x: 3, y: 2 },
+  Beauty: { x: 3, y: 6 },
   // Cosmetics: { x: 6, y: 5 },
   Bakery: { x: 10, y: 3 },
   Dairy: { x: 10, y: 2 },
   Snacks: { x: 3, y: 5 },
-  // Meat: { x: 12, y: 5 },
+  Meat: { x: 10, y: 5 },
   // "Household Essentials": { x: 13, y: 5 },
   // "Cleaning Supplies": { x: 16, y: 5 },
   // Checkout: { x: 18, y: 5 },
@@ -109,7 +106,7 @@ const sectionColors = {
   Outdoor: "#2E8B57", // Sea Green - Natural and calming.
   Automotive: "#DC143C", // Gold - Bold and dependable.
   Appliances: "#DC143C", // Crimson - Strong and vibrant.
-  Books: "#8A2BE2", // Blue Violet - Intellectual and creative.
+  Shoes: "#8A2BE2", // Blue Violet - Intellectual and creative.
   Beauty: "#FF1493", // Deep Pink - Bold and glamorous.
   Cosmetics: "#BA55D3", // Medium Orchid - Elegant and charming.
   Bakery: "#B8009B", // Light Pink - Warm and inviting.
@@ -360,7 +357,7 @@ const MapView = ({ navigation, route }) => {
               x={240} // X coordinate
               y={255} // Y coordinate
               fontSize={16} // Font size
-              fontWeight={"Bold"}
+              fontWeight={"bold"}
               fill="white" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
@@ -369,19 +366,119 @@ const MapView = ({ navigation, route }) => {
               Electronics
             </SvgText>
 
-            {/*
+
             <SvgText
-              x={570}
-              y={180}
+              x={325}
+              y={195}
               fontSize={16}
               fontWeight={"bold"}
               fill="white"
               textAnchor="middle"
               alignmentBaseline="middle"
             >
-              Checkout
+              Sporting Goods
+            </SvgText>
+            <SvgText
+              x={325}
+              y={165}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Meat
+            </SvgText>
+            <SvgText
+              x={125}
+              y={105}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Toys
+            </SvgText>
+            <SvgText
+              x={330}
+              y={105}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Bakery
+            </SvgText>
+            <SvgText
+              x={330}
+              y={75}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Dairy
+            </SvgText>
+            <SvgText
+              x={125}
+              y={165}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="black"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Snacks
+            </SvgText>
+            <SvgText
+              x={125}
+              y={195}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="black"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Beauty
+            </SvgText>
+            <SvgText
+              x={125}
+              y={75}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Shoes
+            </SvgText>
+            <SvgText
+              x={125}
+              y={75}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              Shoes
+            </SvgText>
+            <SvgText
+              x={15}
+              y={255}
+              fontSize={16}
+              fontWeight={"bold"}
+              fill="white"
+              textAnchor="middle"
+              alignmentBaseline="middle"
+            >
+              E
             </SvgText>
 
+            {/*
             <SvgText
               x={16}
               y={200}

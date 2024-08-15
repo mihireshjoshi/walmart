@@ -137,7 +137,7 @@ const CreateShoppingList = () => {
         <View style={styles.container}>
             <Text style={styles.title}>Create Your Shopping List</Text>
 
-            
+
             <View style={styles.searchSection}>
                 <TextInput
                     style={styles.searchInput}
@@ -152,7 +152,7 @@ const CreateShoppingList = () => {
                         Keyboard.dismiss();
                     }}
                 >
-                    <Icon name="x" size={24} color="#002E4F"/>
+                    <Icon name="x" size={24} color="#002E4F" />
                 </TouchableOpacity>
             </View>
 
@@ -203,7 +203,7 @@ const CreateShoppingList = () => {
             ) : (
                 <></>
             )}
-            
+
         </View>
     );
 };
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     productList: {
-        maxHeight: 400,
+        maxHeight: 269,
         marginBottom: 20,
     },
     productListContainer: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     addButtonText: {
         color: '#fff',
         fontSize: 14,
-        
+
     },
     productName: {
         fontSize: 16,
@@ -343,7 +343,6 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
     },
     emptyListText: {

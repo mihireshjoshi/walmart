@@ -60,9 +60,9 @@ const locations = {
   "Sporting Goods": { x: 10, y: 6 },
   Shoes: { x: 3, y: 2 },
   Beauty: { x: 3, y: 6 },
-  Bakery: { x: 10, y: 3 },
+  Snacks: { x: 10, y: 3 },
   Dairy: { x: 10, y: 2 },
-  Snacks: { x: 3, y: 5 },
+  Bakery: { x: 3, y: 5 },
   Meat: { x: 10, y: 5 },
 };
 
@@ -396,7 +396,7 @@ const MapView = ({ navigation, route }) => {
               textAnchor="middle"
               alignmentBaseline="middle"
             >
-              Bakery
+              Snacks
             </SvgText>
             <SvgText
               x={330}
@@ -418,7 +418,7 @@ const MapView = ({ navigation, route }) => {
               textAnchor="middle"
               alignmentBaseline="middle"
             >
-              Snacks
+              Bakery
             </SvgText>
             <SvgText
               x={125}
@@ -606,9 +606,9 @@ const MapView = ({ navigation, route }) => {
       {/* {queueInfo && // Inside your MapView component
 <QueueStatus route={{ params: { queueInfo: { queue_name: 'Queue1', estimated_time: 120 } } }} />
 } */}
-{queueInfo.queue_name &&
-  <QueueStatus route={{ params: { queueInfo } }} />
-}
+      {queueInfo.queue_name &&
+        <QueueStatus route={{ params: { queueInfo } }} />
+      }
     </ScrollView>
   );
 };

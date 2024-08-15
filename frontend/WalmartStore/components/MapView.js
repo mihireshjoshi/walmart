@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import styles from "../customStyles/mapViewStyles";
 import {
   View,
   Text,
@@ -35,22 +36,6 @@ const locationIconHeight = 43;
 const windowWidth = Dimensions.get("window").width;
 const gridSize = 30;
 
-// Store layout with real section names
-// const storeLayout = [
-//   ["Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, "Grocery", "Grocery", "Grocery", "Grocery", "Grocery", 0, "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", 0],
-//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   ["Pharmacy", 0, "Home Decor", "Home Decor", "Home Decor", 0, "Toys", "Toys", "Toys", 0, "Furniture", "Furniture", "Furniture", 0, "Sporting Goods", "Sporting Goods", "Sporting Goods", 0, "Outdoor", 0, "Automotive", 0],
-//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Outdoor", 0, "Automotive", 0],
-//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
-//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
-//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
-//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
-//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
-//   ["Pharmacy", "Pharmacy", "Entrance", 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
-// ];
-
 const storeLayout = [
   [0, "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance"],
@@ -69,26 +54,15 @@ const locations = {
   "Checkout 1": { x: 16, y: 1 },
   "Checkout 2": { x: 16, y: 5 },
   Clothing: { x: 8, y: 0 },
-  // Grocery: { x: 9, y: 1 },
   Electronics: { x: 8, y: 8 },
-  // Pharmacy: { x: 1, y: 6 },
-  // "Home Decor": { x: 2, y: 3 },
   Toys: { x: 3, y: 3 },
-  // Furniture: { x: 11, y: 3 },
   "Sporting Goods": { x: 10, y: 6 },
-  // Outdoor: { x: 18, y: 3 },
-  // Automotive: { x: 20, y: 3 },
-  // Appliances: { x: 2, y: 5 },
   Shoes: { x: 3, y: 2 },
   Beauty: { x: 3, y: 6 },
-  // Cosmetics: { x: 6, y: 5 },
   Bakery: { x: 10, y: 3 },
   Dairy: { x: 10, y: 2 },
   Snacks: { x: 3, y: 5 },
   Meat: { x: 10, y: 5 },
-  // "Household Essentials": { x: 13, y: 5 },
-  // "Cleaning Supplies": { x: 16, y: 5 },
-  // Checkout: { x: 18, y: 5 },
 };
 
 // Different shades of the same color
@@ -151,7 +125,12 @@ const MapView = ({ navigation, route }) => {
     };
     loadShoppingList();
   }, []);
-
+  //qr
+  useEffect(() => {
+    if (route.params?.scannedPosition) {
+      setSource(route.params.scannedPosition);
+    }
+  }, [route.params?.scannedPosition]);
   // Update path when source, destination, or shopping list changes
   useEffect(() => {
     const start = source ? source : { x: 0, y: 0 };
@@ -223,20 +202,6 @@ const MapView = ({ navigation, route }) => {
       console.error('Error updating AsyncStorage:', error);
     }
   };
-
-  // const handleCheckItem = (item) => {
-  //   setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
-
-  //   // Remove the item from the shopping list
-  //   setShoppingList((prevList) => prevList.filter((listItem) => listItem !== item));
-  // };
-
-  // const handleCheckItem = (item) => {
-  //   setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
-  //   if (!checkedItems[item]) {
-  //     setSource(locations[item]);
-  //   }
-  // };
 
   const lastPathBlock = path.length > 0 ? path[path.length - 1] : source;
 
@@ -478,247 +443,6 @@ const MapView = ({ navigation, route }) => {
               E
             </SvgText>
 
-            {/*
-            <SvgText
-              x={16}
-              y={200}
-              fontSize={16}
-              fontWeight={"bold"}
-              fill="white"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              transform={`rotate(-90, 16, 200)`}
-            >
-              Pharmacy
-            </SvgText>
-
-            <SvgText
-              x={286}
-              y={16}
-              fontSize={16}
-              fontWeight={"bold"}
-              fill="white"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-            >
-              Grocery
-            </SvgText>
-
-            <SvgText
-              x={510}
-              y={16}
-              fontSize={16}
-              fontWeight={"bold"}
-              fill="white"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-            >
-              Electronics
-            </SvgText>
-
-            <SvgText
-              x={554}
-              y={90}
-              fontSize={14}
-              fontWeight={"500"}
-              fill="white"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              transform={`rotate(90, 554, 90)`}
-            >
-              Outdoor
-            </SvgText>
-
-            <SvgText
-              x={616}
-              y={90}
-              fontSize={10}
-              fontWeight={"500"}
-              fill="white"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              transform={`rotate(90, 616, 90)`}
-            >
-              Automotive
-            </SvgText>
-
-            <SvgText
-              x={226} // X coordinate
-              y={76} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              Toys
-            </SvgText>
-
-            <SvgText
-              x={104} // X coordinate
-              y={76} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              Decor
-            </SvgText>
-
-            <SvgText
-              x={346} // X coordinate
-              y={76} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              Furniture
-            </SvgText>
-
-            <SvgText
-              x={466} // X coordinate
-              y={76} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              Sports
-            </SvgText>
-
-            
-
-            <SvgText
-              x={76} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(90, 76, 180)`}
-            >
-              Appliances
-            </SvgText>
-
-            <SvgText
-              x={196} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(-90, 196, 180)`}
-            >
-              Cosmetics
-            </SvgText>
-
-            <SvgText
-              x={166} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(90, 166, 180)`}
-            >
-              Beauty
-            </SvgText>
-
-            <SvgText
-              x={286} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(-90, 286, 180)`}
-            >
-              Dairy
-            </SvgText>
-
-            <SvgText
-              x={256} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(90, 256, 180)`}
-            >
-              Bakery
-            </SvgText>
-
-            <SvgText
-              x={376} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(-90, 376, 180)`}
-            >
-              Meat
-            </SvgText>
-
-            <SvgText
-              x={346} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(90, 346, 180)`}
-            >
-              Snacks
-            </SvgText>
-
-            <SvgText
-              x={376} // X coordinate
-              y={330} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="#0B2D56" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              A
-            </SvgText>
-
-            <SvgText
-              x={436} // X coordinate
-              y={330} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="#0B2D56" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              B
-            </SvgText>
-
-            <SvgText
-              x={496} // X coordinate
-              y={330} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"bold"}
-              fill="#0B2D56" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-            >
-              C
-            </SvgText> */}
-
             {path.map(
               (point, index) =>
                 index > 0 && (
@@ -859,141 +583,5 @@ const MapView = ({ navigation, route }) => {
     </ScrollView>
   );
 };
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: "auto",
-    zIndex: -1,
-  },
-
-  topPop: {
-    width: windowWidth,
-    // backgroundColor: "#fff",
-    zIndex: 1,
-    elevation: 4,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  optPop: {
-    flexDirection: "row",
-    paddingTop: 10,
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  pickTxt: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#002E4F"
-  },
-  select: {
-    width: 160,
-    margin: 4,
-    padding: 6,
-    marginHorizontal: "auto",
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  picker: {
-    padding: 0,
-    backgroundColor: "#E6EDF2",
-    borderRadius: 4,
-  },
-  qrButton: {
-    marginHorizontal: 20,
-    backgroundColor: "#002E4F",
-    paddingHorizontal: "auto",
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginTop: 12,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  qrTxt: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "white",
-    textAlign: "center",
-  },
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    width: 300,
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  closeButton: {
-    backgroundColor: "#266BBC",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  productListContainer: {
-    margin: 20,
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-  },
-  productListTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
-  },
-  productListItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: "#E6EDF2",
-    borderRadius: 8,
-  },
-  productListText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#002E4F",
-  },
-});
 
 export default MapView;

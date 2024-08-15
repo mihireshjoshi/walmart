@@ -42,7 +42,7 @@ function App() {
     <Provider store={store}>
       <CartProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="LandingPage">
+          <Stack.Navigator initialRouteName="ScanningCashier">
             <Stack.Screen
               name="LandingPage"
               component={LandingPage}

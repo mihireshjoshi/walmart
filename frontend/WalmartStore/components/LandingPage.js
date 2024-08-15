@@ -162,7 +162,7 @@ const LandingPage = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles2.card} onPress={() => handlePress(item)}>
-      <View style={{flexDirection: "column"}}>
+      <View style={{ flexDirection: "column" }}>
         <Text style={styles2.cardTitle}>{item.name}</Text>
         <Text style={styles2.cardDescription}>{item.description}</Text>
       </View>
@@ -259,7 +259,7 @@ const LandingPage = () => {
               Keyboard.dismiss(); // Close the keyboard
             }}
           >
-            <Icon name="x" size={24} color="#002E4F"/>
+            <Icon name="x" size={24} color="#002E4F" />
             {/* <Text style={style.clearButtonText}>X</Text> */}
           </TouchableOpacity>
         </View>
@@ -342,7 +342,7 @@ const LandingPage = () => {
       {/* Extra Displayed Products : Shoes, Food, Snacks */}
       <ScrollView style={styles2.scrollView}>
         <View style={styles2.container}>
-          <View style={{flexDirection: "row", gap: 6}}>
+          <View style={{ flexDirection: "row", gap: 6 }}>
             <Text style={styles2.title}>Shoes</Text>
             {/* <Icon name="fast-food-outline" size={24} color="#002E4F" /> */}
           </View>
@@ -358,7 +358,7 @@ const LandingPage = () => {
         </View>
 
         <View style={styles2.container}>
-          <View style={{flexDirection: "row", gap: 6}}>
+          <View style={{ flexDirection: "row", gap: 6 }}>
             <Text style={styles2.title}>Food</Text>
             {/* <Icon name="fast-food-outline" size={24} color="#002E4F" /> */}
           </View>
@@ -468,7 +468,6 @@ const stylesmainfeature = StyleSheet.create({
   mainFeaturesContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
     // marginVertical: 16,
     // marginHorizontal: 8
   },
@@ -543,7 +542,7 @@ const stylesnav = StyleSheet.create({
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    marginTop: 25,
+    marginTop: 35,
   },
   pageTitle: {
     fontSize: 20,

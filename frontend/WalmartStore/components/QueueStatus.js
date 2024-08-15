@@ -7,8 +7,8 @@ import { CartContext } from '../context/CartContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const QueueStatus = ({ route }) => {
-    const { queueInfo } = route.params;
-    const [timeRemaining, setTimeRemaining] = useState(queueInfo.estimated_time);
+    const queueInfo = route?.params?.queueInfo || {};  // Safe access to route.params
+    const [timeRemaining, setTimeRemaining] = useState(queueInfo.estimated_time || 0);  // Use default value if undefined
     const navigation = useNavigation();
     const { cart, clearCart } = useContext(CartContext);
 
@@ -17,7 +17,7 @@ const QueueStatus = ({ route }) => {
             const allocationTime = await AsyncStorage.getItem('allocationTime');
             if (allocationTime) {
                 const elapsed = Math.floor((Date.now() - parseInt(allocationTime, 10)) / 1000);
-                const remaining = queueInfo.estimated_time - elapsed;
+                const remaining = (queueInfo.estimated_time || 0) - elapsed;  // Use default value if undefined
                 setTimeRemaining(remaining > 0 ? remaining : 0);
             }
         };
@@ -38,14 +38,14 @@ const QueueStatus = ({ route }) => {
     }, [timeRemaining]);
 
     const handleDoneShopping = () => {
-        clearCart(); // Clear the cart
-        navigation.navigate('LandingPage'); // Redirect to home page
+        clearCart();  // Clear the cart
+        navigation.navigate('LandingPage');  // Redirect to home page
     };
 
     const radius = 60;
     const strokeWidth = 10;
     const circleLength = 2 * Math.PI * radius;
-    const progress = (timeRemaining / queueInfo.estimated_time) * circleLength;
+    const progress = (timeRemaining / (queueInfo.estimated_time || 1)) * circleLength;  // Avoid division by 0
 
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
@@ -64,7 +64,7 @@ const QueueStatus = ({ route }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Queue Status</Text>
-            <Text style={styles.infoText}>Queue Name: {queueInfo.queue_name}</Text>
+            <Text style={styles.infoText}>Queue Name: {queueInfo.queue_name || "Unknown"}</Text>
 
             {timeRemaining > 0 ? (
                 <>
@@ -114,7 +114,7 @@ const QueueStatus = ({ route }) => {
                 </View>
             )}
 
-            <Button title="Back to Home" onPress={() => navigation.navigate('LandingPage')} />
+            {/* <Button title="Back to Home" onPress={() => navigation.navigate('LandingPage')} /> */}
         </View>
     );
 };

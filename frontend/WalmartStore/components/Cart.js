@@ -32,34 +32,63 @@ const Cart = () => {
         }
     };
 
+    // const handleCounterCheckout = async () => {
+    //     if (queueInfo && queueInfo.estimated_time > 0) {
+    //         Alert.alert('Queue Already Allocated', `You are already in ${queueInfo.queue_name} with an estimated wait time of ${queueInfo.estimated_time} seconds.`);
+    //         navigation.navigate('QueueStatus', { queueInfo });
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await axios.post(`${API_URL}/allocate_queue`);
+    //         const queueData = response.data;
+    //         setQueueInfo(queueData);
+
+    //         // Save queue info and allocation time in AsyncStorage
+    //         await AsyncStorage.setItem('queueInfo', JSON.stringify(queueData));
+    //         await AsyncStorage.setItem('allocationTime', Date.now().toString());
+
+    //         if (queueData.estimated_time === 0) {
+    //             Alert.alert('Queue Allocated', `You have been directly allocated to ${queueData.queue_name}.`);
+    //         } else {
+    //             Alert.alert('Queue Allocated', `You have been allocated to ${queueData.queue_name} with an estimated wait time of ${queueData.estimated_time} seconds.`);
+    //         }
+    //         navigation.navigate('QueueStatus', { queueInfo: queueData });
+    //     } catch (error) {
+    //         console.error('Error during checkout:', error);
+    //         Alert.alert('Error', 'Could not allocate queue. Please try again later.');
+    //     }
+    // };
     const handleCounterCheckout = async () => {
         if (queueInfo && queueInfo.estimated_time > 0) {
             Alert.alert('Queue Already Allocated', `You are already in ${queueInfo.queue_name} with an estimated wait time of ${queueInfo.estimated_time} seconds.`);
             navigation.navigate('QueueStatus', { queueInfo });
             return;
         }
-
+    
         try {
             const response = await axios.post(`${API_URL}/allocate_queue`);
             const queueData = response.data;
             setQueueInfo(queueData);
-
+    
             // Save queue info and allocation time in AsyncStorage
             await AsyncStorage.setItem('queueInfo', JSON.stringify(queueData));
             await AsyncStorage.setItem('allocationTime', Date.now().toString());
-
+    
             if (queueData.estimated_time === 0) {
                 Alert.alert('Queue Allocated', `You have been directly allocated to ${queueData.queue_name}.`);
             } else {
                 Alert.alert('Queue Allocated', `You have been allocated to ${queueData.queue_name} with an estimated wait time of ${queueData.estimated_time} seconds.`);
             }
-            navigation.navigate('QueueStatus', { queueInfo: queueData });
+    
+            // Navigate to MapView and pass the queue info
+            navigation.navigate('MapView', { queueInfo: queueData });
         } catch (error) {
             console.error('Error during checkout:', error);
             Alert.alert('Error', 'Could not allocate queue. Please try again later.');
         }
     };
-
+    
     const renderCartItem = ({ item }) => (
         <View style={styles.cartItem}>
             <Text style={styles.itemName}>{item.name}</Text>

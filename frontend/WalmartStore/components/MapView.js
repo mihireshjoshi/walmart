@@ -26,6 +26,7 @@ import {
 } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'; import Icon from 'react-native-vector-icons/MaterialIcons'; // Import icons
+import QueueStatus from './QueueStatus'; // Ensure the correct relative path
 
 
 // Constants for dimensions
@@ -99,12 +100,33 @@ const MapView = ({ navigation, route }) => {
   const { userPosition } = useSelector((state) => state.position);
   const [path, setPath] = useState([]);
   const [source, setSource] = useState(locations["Entrance"]);
-  const [destination, setDestination] = useState(locations["Clothing"]); // Default destination
+  // const [destination, setDestination] = useState(locations["Clothing"]); // Default destination
   const [directions, setDirections] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentOffer, setCurrentOffer] = useState("");
   const [shoppingList, setShoppingList] = useState([]);
   const [checkedItems, setCheckedItems] = useState({});
+  // const [queueInfo, setQueueInfo] = useState(null);
+  const queueInfo = route?.params?.queueInfo || {};  // Get the dynamic queueInfo from the route
+  const [destination, setDestination] = useState(
+    queueInfo.queue_name === 'Queue1' ? locations['Checkout 1'] : locations['Checkout 2']
+  );
+  // Load queue info from AsyncStorage and determine destination
+  useEffect(() => {
+    const fetchQueueInfo = async () => {
+      const storedQueueInfo = await AsyncStorage.getItem("queueInfo");
+      if (storedQueueInfo) {
+        const parsedQueueInfo = JSON.parse(storedQueueInfo);
+        setQueueInfo(parsedQueueInfo);
+        const checkoutDestination =
+          parsedQueueInfo.queue_name === "queue1"
+            ? locations["Checkout 1"]
+            : locations["Checkout 2"];
+        setDestination(checkoutDestination);
+      }
+    };
+    fetchQueueInfo();
+  }, []);
 
   // Load shopping list from AsyncStorage
   useEffect(() => {
@@ -580,6 +602,13 @@ const MapView = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
+      {/* Render QueueStatus component below the map */}
+      {/* {queueInfo && // Inside your MapView component
+<QueueStatus route={{ params: { queueInfo: { queue_name: 'Queue1', estimated_time: 120 } } }} />
+} */}
+{queueInfo.queue_name &&
+  <QueueStatus route={{ params: { queueInfo } }} />
+}
     </ScrollView>
   );
 };

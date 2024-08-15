@@ -37,48 +37,61 @@ const windowWidth = Dimensions.get("window").width;
 const gridSize = 30;
 
 // Store layout with real section names
+// const storeLayout = [
+//   ["Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, "Grocery", "Grocery", "Grocery", "Grocery", "Grocery", 0, "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", 0],
+//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   ["Pharmacy", 0, "Home Decor", "Home Decor", "Home Decor", 0, "Toys", "Toys", "Toys", 0, "Furniture", "Furniture", "Furniture", 0, "Sporting Goods", "Sporting Goods", "Sporting Goods", 0, "Outdoor", 0, "Automotive", 0],
+//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Outdoor", 0, "Automotive", 0],
+//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
+//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
+//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
+//   ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
+//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
+//   ["Pharmacy", "Pharmacy", "Entrance", 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
+// ];
+
 const storeLayout = [
-  ["Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, "Grocery", "Grocery", "Grocery", "Grocery", "Grocery", 0, "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", 0],
-  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ["Pharmacy", 0, "Home Decor", "Home Decor", "Home Decor", 0, "Toys", "Toys", "Toys", 0, "Furniture", "Furniture", "Furniture", 0, "Sporting Goods", "Sporting Goods", "Sporting Goods", 0, "Outdoor", 0, "Automotive", 0],
-  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Outdoor", 0, "Automotive", 0],
-  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
-  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
-  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, "Checkout", "Checkout", "Checkout", "Checkout", 0],
-  ["Pharmacy", 0, "Appliances", "Books", 0, "Beauty", "Cosmetics", 0, "Bakery", "Dairy", 0, "Produce", "Meat", 0, "Household Essentials", "Cleaning Supplies", 0, 0, 0, 0, 0, 0],
-  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ["Pharmacy", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
-  ["Pharmacy", "Pharmacy", "Entrance", 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance", 0, "Entrance", 0, "Entrance", 0, 0, 0, 0, 0],
+  [0, "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", "Clothing", 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance"],
+  // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Entrance"],
+  [0, "Books", "Books", "Books", "Books", "Books", "Books", 0, "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", "Dairy", 0, 0, 0, "Entrance"],
+  [0, "Toys", "Toys", "Toys", "Toys", "Toys", "Toys", 0, "Bakery", "Bakery", "Bakery", "Bakery", "Bakery", "Bakery", 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, "Snacks", "Snacks", "Snacks", "Snacks", "Snacks", "Snacks", 0, "Meat", "Meat", "Meat", "Meat", "Meat", "Meat", 0, 0, 0, "Entrance"],
+  [0, "Beauty", "Beauty", "Beauty", "Beauty", "Beauty", "Beauty", 0, "Sporting Goods", "Sporting Goods", "Sporting Goods", "Sporting Goods", "Sporting Goods", "Sporting Goods", 0, 0, 0, "Entrance"],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ["Entrance", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", "Electronics", 0, 0, 0]
 ];
 
 // Locations for sections and features
 const locations = {
-  Entrance: { x: 3, y: 11 },
-  "Checkout 1": { x: 13, y: 10 },
-  "Checkout 2": { x: 15, y: 10 },
-  "Checkout 3": { x: 17, y: 10 },
-  Clothing: { x: 2, y: 1 },
-  Grocery: { x: 9, y: 1 },
-  Electronics: { x: 16, y: 1 },
-  Pharmacy: { x: 1, y: 6 },
-  "Home Decor": { x: 2, y: 3 },
-  Toys: { x: 7, y: 3 },
-  Furniture: { x: 11, y: 3 },
-  "Sporting Goods": { x: 15, y: 3 },
-  Outdoor: { x: 18, y: 3 },
-  Automotive: { x: 20, y: 3 },
-  Appliances: { x: 2, y: 5 },
-  Books: { x: 3, y: 5 },
-  Beauty: { x: 5, y: 5 },
-  Cosmetics: { x: 6, y: 5 },
-  Bakery: { x: 8, y: 5 },
-  Dairy: { x: 9, y: 5 },
-  Snacks: { x: 11, y: 5 },
-  Meat: { x: 12, y: 5 },
-  "Household Essentials": { x: 13, y: 5 },
-  "Cleaning Supplies": { x: 16, y: 5 },
-  Checkout: { x: 18, y: 5 },
+  Entrance: { x: 0, y: 8 },
+  // "Checkout 1": { x: 13, y: 10 },
+  // "Checkout 2": { x: 15, y: 10 },
+  // "Checkout 3": { x: 17, y: 10 },
+  Clothing: { x: 8, y: 0 },
+  // Grocery: { x: 9, y: 1 },
+  Electronics: { x: 8, y: 8 },
+  // Pharmacy: { x: 1, y: 6 },
+  // "Home Decor": { x: 2, y: 3 },
+  // Toys: { x: 7, y: 3 },
+  // Furniture: { x: 11, y: 3 },
+  // "Sporting Goods": { x: 15, y: 3 },
+  // Outdoor: { x: 18, y: 3 },
+  // Automotive: { x: 20, y: 3 },
+  // Appliances: { x: 2, y: 5 },
+  Books: { x: 3, y: 2 },
+  Beauty: { x: 3, y: 3 },
+  // Cosmetics: { x: 6, y: 5 },
+  Bakery: { x: 10, y: 3 },
+  Dairy: { x: 10, y: 2 },
+  Snacks: { x: 3, y: 5 },
+  // Meat: { x: 12, y: 5 },
+  // "Household Essentials": { x: 13, y: 5 },
+  // "Cleaning Supplies": { x: 16, y: 5 },
+  // Checkout: { x: 18, y: 5 },
 };
 
 // Different shades of the same color
@@ -132,7 +145,8 @@ const MapView = ({ navigation, route }) => {
           setShoppingList(JSON.parse(savedList));
         } else {
           // If no saved list, use default values
-          setShoppingList(["Grocery", "Electronics", "Pharmacy"]);
+          setShoppingList([]);
+          // setShoppingList(["Grocery", "Electronics", "Pharmacy"]);
         }
       } catch (error) {
         console.error("Failed to load shopping list from AsyncStorage", error);
@@ -159,7 +173,7 @@ const MapView = ({ navigation, route }) => {
 
   const handleDestinationChange = (itemValue) => {
     const selectedLocation = locations[itemValue];
-  
+
     if (shoppingList.length > 0) {
       // If there's an existing shopping list, add the destination to it and recalculate the path
       setShoppingList((prevList) => {
@@ -172,17 +186,17 @@ const MapView = ({ navigation, route }) => {
       // If there's no shopping list, set the destination as the only item
       setShoppingList([itemValue]);
     }
-  
+
     setSource((prevSource) => {
       const start = prevSource ? prevSource : { x: 0, y: 0 };
       const selectedDestinations = shoppingList
         .filter((item) => item !== itemValue)
         .map((item) => locations[item]);
-  
+
       const newPath = findShortestPath(start, [selectedLocation, ...selectedDestinations], storeLayout);
       setPath([start, ...newPath]);
       setDirections(generateDirections(newPath));
-  
+
       return prevSource;
     });
   };
@@ -190,20 +204,20 @@ const MapView = ({ navigation, route }) => {
   const handleCheckItem = async (item) => {
     const newSource = locations[item];
     setSource(newSource);
-  
+
     const start = newSource;
     const selectedDestinations = shoppingList
       .filter((listItem) => listItem !== item)
       .map((listItem) => locations[listItem]);
-  
+
     const newPath = findShortestPath(start, selectedDestinations, storeLayout);
     setPath([start, ...newPath]);
     setDirections(generateDirections(newPath));
-  
+
     // Remove the item from the shopping list
     const updatedList = shoppingList.filter((listItem) => listItem !== item);
     setShoppingList(updatedList);
-  
+
     // Update the AsyncStorage with the new list
     try {
       await AsyncStorage.setItem('List_sections', JSON.stringify(updatedList));
@@ -215,7 +229,7 @@ const MapView = ({ navigation, route }) => {
 
   // const handleCheckItem = (item) => {
   //   setCheckedItems({ ...checkedItems, [item]: !checkedItems[item] });
-    
+
   //   // Remove the item from the shopping list
   //   setShoppingList((prevList) => prevList.filter((listItem) => listItem !== item));
   // };
@@ -259,55 +273,54 @@ const MapView = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView style={{backgroundColor: "#E7ECEF"}}>
-    <ScrollView horizontal style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Svg
-          height={storeLayout.length * gridSize}
-          width={storeLayout[0].length * gridSize}
-          viewBox={`0 0 ${storeLayout[0].length * gridSize} ${
-            storeLayout.length * gridSize
-          }`}
-        >
-          {storeLayout.map((row, y) =>
-            row.map((cell, x) => {
-              let fillColor = colors[cell] || "white";
-              if (sectionColors[cell]) {
-                fillColor = sectionColors[cell];
-              }
-              return (
-                <G key={`${x}-${y}`}>
-                  <Rect
-                    x={x * gridSize}
-                    y={y * gridSize}
-                    width={gridSize}
-                    height={gridSize}
-                    fill={fillColor}
-                  />
-                  {offers[cell] && (
-                    <TouchableOpacity
-                      onPress={() => handleCellPress(cell)}
-                      style={{
-                        position: "absolute",
-                        left: x * gridSize,
-                        top: y * gridSize,
-                        width: gridSize,
-                        height: gridSize,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <MaterialIcons name="star" size={20} color="gold" />
-                    </TouchableOpacity>
-                  )}
-                </G>
-              );
-            })
-          )}
+    <ScrollView style={{ backgroundColor: "#E7ECEF" }}>
+      <ScrollView horizontal style={styles.container}>
+        <ScrollView style={styles.container}>
+          <Svg
+            height={storeLayout.length * gridSize}
+            width={storeLayout[0].length * gridSize}
+            viewBox={`0 0 ${storeLayout[0].length * gridSize} ${storeLayout.length * gridSize
+              }`}
+          >
+            {storeLayout.map((row, y) =>
+              row.map((cell, x) => {
+                let fillColor = colors[cell] || "white";
+                if (sectionColors[cell]) {
+                  fillColor = sectionColors[cell];
+                }
+                return (
+                  <G key={`${x}-${y}`}>
+                    <Rect
+                      x={x * gridSize}
+                      y={y * gridSize}
+                      width={gridSize}
+                      height={gridSize}
+                      fill={fillColor}
+                    />
+                    {/* {offers[cell] && (
+                      <TouchableOpacity
+                        onPress={() => handleCellPress(cell)}
+                        style={{
+                          position: "absolute",
+                          left: x * gridSize,
+                          top: y * gridSize,
+                          width: gridSize,
+                          height: gridSize,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <MaterialIcons name="star" size={20} color="gold" />
+                      </TouchableOpacity>
+                    )} */}
+                  </G>
+                );
+              })
+            )}
 
             {/* Manually placed labels */}
             <SvgText
-              x={90} // X coordinate
+              x={225} // X coordinate
               y={16} // Y coordinate
               fontSize={16} // Font size
               fontWeight={"bold"}
@@ -320,30 +333,43 @@ const MapView = ({ navigation, route }) => {
 
             <SvgText
               x={466} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
+              y={215} // Y coordinate
+              fontSize={14} // Font size
+              fontWeight={"bold"}
+              fill="black" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
               transform={`rotate(-90, 466, 180)`}
             >
-              Cleaning
+              Checkout 2
+            </SvgText>
+            <SvgText
+              x={588} // X coordinate
+              y={215} // Y coordinate
+              fontSize={14} // Font size
+              fontWeight={"bold"}
+              fill="black" // Text color
+              textAnchor="middle" // Text alignment
+              alignmentBaseline="middle"
+              transform={`rotate(-90, 466, 180)`}
+            >
+              Checkout 1
             </SvgText>
 
             <SvgText
-              x={436} // X coordinate
-              y={180} // Y coordinate
+              x={240} // X coordinate
+              y={255} // Y coordinate
               fontSize={16} // Font size
-              fontWeight={"500"}
+              fontWeight={"Bold"}
               fill="white" // Text color
               textAnchor="middle" // Text alignment
               alignmentBaseline="middle"
-              transform={`rotate(90, 436, 180)`}
+
             >
-              Household
+              Electronics
             </SvgText>
 
+            {/*
             <SvgText
               x={570}
               y={180}
@@ -467,18 +493,7 @@ const MapView = ({ navigation, route }) => {
               Sports
             </SvgText>
 
-            <SvgText
-              x={106} // X coordinate
-              y={180} // Y coordinate
-              fontSize={16} // Font size
-              fontWeight={"500"}
-              fill="white" // Text color
-              textAnchor="middle" // Text alignment
-              alignmentBaseline="middle"
-              transform={`rotate(-90, 106, 180)`}
-            >
-              Books
-            </SvgText>
+            
 
             <SvgText
               x={76} // X coordinate
@@ -605,7 +620,7 @@ const MapView = ({ navigation, route }) => {
               alignmentBaseline="middle"
             >
               C
-            </SvgText>
+            </SvgText> */}
 
             {path.map(
               (point, index) =>
@@ -626,9 +641,8 @@ const MapView = ({ navigation, route }) => {
 
             {/* Start Marker */}
             <G
-              transform={`translate(${
-                source.x * gridSize + gridSize / 2 - buyerIconWidth / 2
-              }, ${source.y * gridSize + gridSize / 2 - buyerIconHeight / 2})`}
+              transform={`translate(${source.x * gridSize + gridSize / 2 - buyerIconWidth / 2
+                }, ${source.y * gridSize + gridSize / 2 - buyerIconHeight / 2})`}
             >
               <Image
                 href={require("../assets/buyer.png")}
@@ -637,18 +651,16 @@ const MapView = ({ navigation, route }) => {
               />
             </G>
 
-             {/* Destination Marker on the last path block */}
-             {lastPathBlock && (
+            {/* Destination Marker on the last path block */}
+            {lastPathBlock && (
               <G
-                transform={`translate(${
-                  lastPathBlock.x * gridSize +
+                transform={`translate(${lastPathBlock.x * gridSize +
                   gridSize / 2 -
                   locationIconWidth / 2
-                }, ${
-                  lastPathBlock.y * gridSize +
+                  }, ${lastPathBlock.y * gridSize +
                   gridSize / 2 -
                   locationIconHeight / 2
-                })`}
+                  })`}
               >
                 <Image
                   href={require("../assets/location.png")}
@@ -707,23 +719,23 @@ const MapView = ({ navigation, route }) => {
           </TouchableOpacity>
 
           {/* Product List */}
-      {shoppingList.length > 0 && (
-        <View style={styles.productListContainer}>
-          <Text style={styles.productListTitle}>Shopping List</Text>
-          <FlatList
-            data={shoppingList}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.productListItem}
-                onPress={() => handleCheckItem(item)}
-              >
-                <Text style={styles.productListText}>{item}</Text>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item}
-          />
-        </View>
-      )}
+          {shoppingList.length > 0 && (
+            <View style={styles.productListContainer}>
+              <Text style={styles.productListTitle}>Shopping List</Text>
+              <FlatList
+                data={shoppingList}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.productListItem}
+                    onPress={() => handleCheckItem(item)}
+                  >
+                    <Text style={styles.productListText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item}
+              />
+            </View>
+          )}
         </ScrollView>
       </View>
 

@@ -30,33 +30,33 @@ const ProductDetails = ({ route, navigation }) => {
         <View style={styles.container}>
             <ScrollView style={styles.detailsContainer}>
                 <View style={styles.mainBox}>
-                    <View style={{flexDirection: "row", alignItems: "start", justifyContent: "space-between"}}>
-                        <View style={{flexDirection: "column"}}>
+                    <View style={{ flexDirection: "row", alignItems: "start", justifyContent: "space-between" }}>
+                        <View style={{ flexDirection: "column" }}>
                             <Text style={styles.title}>{product.name}</Text>
                             <Text style={styles.description}>{product.description}</Text>
                         </View>
                         <View style={styles.quantityContainer}>
-                        <TouchableOpacity onPress={decreaseQuantity} style={styles.plusMinus}>
-                            <Icon name="minus" size={12} color="#fff" />
-                            {/* <Text style={styles.plusMinusTxt}>-</Text> */}
-                        </TouchableOpacity>
-                        <Text style={styles.quantity}>{quantity}</Text>
-                        <TouchableOpacity onPress={increaseQuantity} style={styles.plusMinus}>
-                            <Icon name="plus" size={12} color="#fff" />
-                            {/* <Text style={styles.plusMinusTxt}>+</Text> */}
-                        </TouchableOpacity>
-                        
-                        {/* <Button title="-" onPress={decreaseQuantity} />
+                            <TouchableOpacity onPress={decreaseQuantity} style={styles.plusMinus}>
+                                <Icon name="minus" size={12} color="#fff" />
+                                {/* <Text style={styles.plusMinusTxt}>-</Text> */}
+                            </TouchableOpacity>
+                            <Text style={styles.quantity}>{quantity}</Text>
+                            <TouchableOpacity onPress={increaseQuantity} style={styles.plusMinus}>
+                                <Icon name="plus" size={12} color="#fff" />
+                                {/* <Text style={styles.plusMinusTxt}>+</Text> */}
+                            </TouchableOpacity>
+
+                            {/* <Button title="-" onPress={decreaseQuantity} />
                         <Text style={styles.quantity}>{quantity}</Text>
                         <Button title="+" onPress={increaseQuantity} /> */}
+                        </View>
                     </View>
-                    </View>
-                    
 
 
-                    
 
-                    
+
+
+
 
                     {product.sale_price && product.discount_percentage ? (
                         <View>
@@ -81,7 +81,7 @@ const ProductDetails = ({ route, navigation }) => {
                                 ${parseFloat(product.price).toFixed(2)}
                             </Text>
                         </View>
-                        
+
                     )}
                     <View style={styles.priceView}>
                         <Text style={styles.originalPriceTxt}>
@@ -92,7 +92,7 @@ const ProductDetails = ({ route, navigation }) => {
                         </Text>
                     </View>
 
-                    
+
 
                     <View style={styles.cartOps}>
                         <TouchableOpacity onPress={handleAddToCart} style={styles.goCartBtn}>
@@ -130,7 +130,7 @@ const ProductDetails = ({ route, navigation }) => {
                 <View style={styles.bottomNavBar}>
                     <TouchableOpacity
                         style={styles.bottomNavButton}
-                        onPress={() => navigation.navigate('ProductNavigation')}
+                        onPress={() => navigation.navigate('MapView')}
                     >
                         <Text style={styles.bottomNavText}>Navigate Your Products</Text>
                     </TouchableOpacity>
@@ -142,9 +142,9 @@ const ProductDetails = ({ route, navigation }) => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-            
+
             {/* Bottom Navigation Bar */}
-            
+
         </View>
     );
 };

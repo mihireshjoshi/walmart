@@ -20,6 +20,7 @@ import RewardSplashScreen from "./components/RewardSplashScreen";
 import { useEffect } from "react";
 import { clearAsyncStorage } from "./components/storageUtils"; // Import the clearAsyncStorage function
 import ScanningCashier from "./components/ScanningCashier";
+import CartDetailsScreen from "./components/CartDetailsScreen";
 const Stack = createStackNavigator();
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews",
@@ -27,6 +28,10 @@ LogBox.ignoreLogs([
 LogBox.ignoreLogs([
   "BarCodeScanner has been deprecated and will be removed in a future SDK version.",
 ]);
+LogBox.ignoreLogs([
+  "Error clearing AsyncStorage",
+]);
+
 function App() {
   useEffect(() => {
     // Clear AsyncStorage when the app is opened
@@ -63,6 +68,11 @@ function App() {
             <Stack.Screen
               name="RewardSplashScreen"
               component={RewardSplashScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CartDetailsScreen"
+              component={CartDetailsScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

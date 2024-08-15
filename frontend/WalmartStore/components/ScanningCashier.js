@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { useNavigation } from '@react-navigation/native';
 
-const ScanningCashier = ({ navigation }) => {
+const ScanningCashier = () => {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [cartDetails, setCartDetails] = useState('');
+    const navigation = useNavigation();
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
@@ -18,7 +19,16 @@ const ScanningCashier = ({ navigation }) => {
 
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
-        setCartDetails(data);
+        console.log('Scanned data:', data);
+
+        // Handle both JSON and non-JSON data
+        try {
+            const cartDetails = JSON.parse(data);  // Try parsing as JSON
+            navigation.navigate('CartDetailsScreen', { cartDetails });
+        } catch (error) {
+            console.error('QR Code is not in JSON format');
+            Alert.alert('Scanned Data', data);  // Show raw data if not JSON
+        }
     };
 
     if (hasPermission === null) {
@@ -34,14 +44,6 @@ const ScanningCashier = ({ navigation }) => {
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
             />
-
-            {scanned && (
-                <View style={styles.resultContainer}>
-                    <Text style={styles.resultText}>Thank you for shopping with us!</Text>
-                    <Text style={styles.cartDetails}>{cartDetails}</Text>
-                    <Button title="Done" onPress={() => navigation.navigate('LandingPage')} />
-                </View>
-            )}
         </View>
     );
 };
@@ -51,24 +53,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    resultContainer: {
-        position: 'absolute',
-        bottom: 20,
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    resultText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    cartDetails: {
-        fontSize: 16,
-        marginBottom: 10,
-        textAlign: 'center',
     },
 });
 
